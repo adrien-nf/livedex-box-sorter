@@ -25,11 +25,7 @@
       text-shadow: 0 0 12px #f8d03066;
     }
 
-    .subtitle {
-      font-size: 0.85rem;
-      color: #aaa;
-      margin-bottom: 1.5rem;
-    }
+    .subtitle { font-size: 0.85rem; color: #aaa; margin-bottom: 1.5rem; }
 
     select {
       width: 100%;
@@ -48,20 +44,16 @@
       background-repeat: no-repeat;
       background-position: right 0.75rem center;
     }
-
     select:focus { border-color: #f8d030; }
 
     .toggle-row {
       display: flex;
-      gap: 0;
       margin-bottom: 1.25rem;
       border: 2px solid #3a3a5c;
       border-radius: 8px;
       overflow: hidden;
     }
-
     .toggle-row input[type="radio"] { display: none; }
-
     .toggle-row label {
       padding: 0.45rem 1.4rem;
       font-size: 0.85rem;
@@ -72,37 +64,24 @@
       transition: background 0.15s, color 0.15s;
       user-select: none;
     }
+    .toggle-row input[type="radio"]:checked + label { background: #f8d030; color: #1a1a2e; }
 
-    .toggle-row input[type="radio"]:checked + label {
-      background: #f8d030;
-      color: #1a1a2e;
-    }
+    .input-row { display: flex; gap: 0.5rem; margin-bottom: 1rem; }
 
-    .input-row {
-      display: flex;
-      gap: 0.5rem;
-      margin-bottom: 1.5rem;
-    }
-
-    input[type="number"] {
-      width: 180px;
+    input[type="text"] {
+      width: 200px;
       padding: 0.6rem 1rem;
-      font-size: 1.1rem;
+      font-size: 1rem;
       border: 2px solid #3a3a5c;
       border-radius: 8px;
       background: #16213e;
       color: #eee;
       outline: none;
       transition: border-color 0.2s;
-      -moz-appearance: textfield;
     }
+    input[type="text"]:focus { border-color: #f8d030; }
 
-    input[type="number"]::-webkit-inner-spin-button,
-    input[type="number"]::-webkit-outer-spin-button { -webkit-appearance: none; }
-
-    input[type="number"]:focus { border-color: #f8d030; }
-
-    button {
+    button.go-btn {
       padding: 0.6rem 1.2rem;
       font-size: 1rem;
       border: none;
@@ -113,24 +92,24 @@
       cursor: pointer;
       transition: background 0.2s, transform 0.1s;
     }
+    button.go-btn:hover { background: #ffe066; }
+    button.go-btn:active { transform: scale(0.97); }
 
-    button:hover { background: #ffe066; }
-    button:active { transform: scale(0.97); }
+    .error { color: #ff6b6b; font-size: 0.9rem; margin-bottom: 0.75rem; min-height: 1.2rem; }
 
     .card {
       background: #16213e;
       border: 2px solid #3a3a5c;
       border-radius: 16px;
-      padding: 1.5rem 2rem;
+      padding: 1.5rem;
       width: 100%;
       max-width: 360px;
       display: none;
       flex-direction: column;
       align-items: center;
-      gap: 0.75rem;
+      gap: 0.7rem;
       animation: pop 0.2s ease;
     }
-
     .card.visible { display: flex; }
 
     @keyframes pop {
@@ -138,36 +117,24 @@
       to   { opacity: 1; transform: scale(1); }
     }
 
-    .poke-sprite {
-      width: 120px;
-      height: 120px;
-      image-rendering: pixelated;
+    .poke-sprite { width: 110px; height: 110px; image-rendering: pixelated; }
+
+    .name-row { display: flex; align-items: center; gap: 0.5rem; }
+    .poke-name { font-size: 1.5rem; font-weight: 700; text-transform: capitalize; color: #fff; }
+    .caught-badge {
+      background: #4ade80;
+      color: #1a1a2e;
+      font-size: 0.7rem;
+      font-weight: 800;
+      padding: 0.15rem 0.45rem;
+      border-radius: 20px;
     }
 
-    .poke-name {
-      font-size: 1.6rem;
-      font-weight: 700;
-      text-transform: capitalize;
-      color: #fff;
-    }
-
-    .poke-numbers {
-      display: flex;
-      gap: 1rem;
-      font-size: 0.85rem;
-      color: #888;
-    }
-
+    .poke-numbers { display: flex; gap: 1rem; font-size: 0.85rem; color: #888; }
     .poke-numbers span { display: flex; flex-direction: column; align-items: center; gap: 0.1rem; }
     .poke-numbers strong { color: #ccc; font-size: 0.95rem; }
 
-    .types {
-      display: flex;
-      gap: 0.4rem;
-      flex-wrap: wrap;
-      justify-content: center;
-    }
-
+    .types { display: flex; gap: 0.4rem; flex-wrap: wrap; justify-content: center; }
     .type-badge {
       padding: 0.25rem 0.75rem;
       border-radius: 20px;
@@ -177,29 +144,62 @@
       letter-spacing: 0.05em;
     }
 
-    .divider {
-      width: 100%;
-      height: 1px;
-      background: #3a3a5c;
+    .caught-toggle {
+      padding: 0.35rem 1rem;
+      font-size: 0.8rem;
+      font-weight: 700;
+      border: 2px solid #3a3a5c;
+      border-radius: 20px;
+      background: transparent;
+      color: #888;
+      cursor: pointer;
+      transition: all 0.15s;
     }
+    .caught-toggle:hover { border-color: #4ade80; color: #4ade80; }
+    .caught-toggle.is-caught { border-color: #4ade80; background: #4ade8022; color: #4ade80; }
+
+    .completion-text { font-size: 0.78rem; color: #666; }
+    .completion-text strong { color: #4ade80; }
+
+    .divider { width: 100%; height: 1px; background: #3a3a5c; }
 
     .box-info { text-align: center; }
+    .box-label { font-size: 0.75rem; color: #888; text-transform: uppercase; letter-spacing: 0.08em; margin-bottom: 0.2rem; }
+    .box-number { font-size: 2rem; font-weight: 800; color: #f8d030; }
+    .box-slot { font-size: 0.85rem; color: #aaa; }
 
-    .box-label {
-      font-size: 0.75rem;
-      color: #888;
-      text-transform: uppercase;
-      letter-spacing: 0.08em;
-      margin-bottom: 0.25rem;
+    .box-name-edit {
+      font-size: 1.4rem;
+      font-weight: 700;
+      color: #fff;
+      text-align: center;
+      outline: none;
+      border-bottom: 2px dashed transparent;
+      padding: 0.1rem 0.4rem;
+      border-radius: 4px;
+      cursor: text;
+      transition: border-color 0.15s;
+      min-width: 80px;
     }
+    .box-name-edit:hover, .box-name-edit:focus { border-bottom-color: #f8d030; }
 
-    .box-number {
-      font-size: 2.2rem;
-      font-weight: 800;
-      color: #f8d030;
+    .box-range { font-size: 0.85rem; color: #888; }
+
+    .nav-row { display: flex; align-items: center; gap: 0.75rem; }
+    .nav-btn {
+      background: #0d1526;
+      border: 2px solid #3a3a5c;
+      color: #aaa;
+      border-radius: 8px;
+      padding: 0.3rem 0.75rem;
+      font-size: 1rem;
+      cursor: pointer;
+      transition: border-color 0.15s, color 0.15s;
+      line-height: 1;
     }
-
-    .box-slot { font-size: 0.85rem; color: #aaa; margin-bottom: 0.5rem; }
+    .nav-btn:hover:not(:disabled) { border-color: #f8d030; color: #f8d030; }
+    .nav-btn:disabled { opacity: 0.3; cursor: default; }
+    .nav-label { font-size: 0.85rem; color: #888; }
 
     .box-grid {
       display: grid;
@@ -218,34 +218,48 @@
       justify-content: center;
       overflow: hidden;
       position: relative;
-      transition: border-color 0.2s;
+      cursor: pointer;
+      transition: border-color 0.15s;
     }
-
+    .box-cell:hover { border-color: #555; }
     .box-cell img {
       width: 100%;
       height: 100%;
       object-fit: contain;
       image-rendering: pixelated;
+      pointer-events: none;
     }
+    .box-cell.active { border-color: #f8d030; box-shadow: 0 0 8px #f8d03088; }
+    .box-cell.caught { border-color: #4ade8066; }
+    .box-cell.caught img { opacity: 0.5; }
+    .box-cell.active.caught { border-color: #f8d030; }
+    .box-cell.active.caught img { opacity: 1; }
 
-    .box-cell.active {
-      border-color: #f8d030;
-      box-shadow: 0 0 8px #f8d03088;
+    .caught-btn {
+      position: absolute;
+      bottom: 2px;
+      right: 2px;
+      width: 13px;
+      height: 13px;
+      border-radius: 50%;
+      border: 1px solid #3a3a5c;
+      background: #0d1526;
+      color: transparent;
+      font-size: 8px;
+      cursor: pointer;
+      padding: 0;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: all 0.1s;
+      z-index: 2;
+      line-height: 1;
     }
+    .caught-btn:hover { border-color: #4ade80; color: #4ade8088; }
+    .box-cell.caught .caught-btn { background: #4ade80; border-color: #4ade80; color: #1a1a2e; }
 
-    .box-cell .cell-num {
-      font-size: 0.55rem;
-      color: #3a3a5c;
-    }
+    .cell-num { font-size: 0.5rem; color: #3a3a5c; pointer-events: none; }
 
-    .error {
-      color: #ff6b6b;
-      font-size: 0.9rem;
-      margin-top: -0.5rem;
-      margin-bottom: 0.5rem;
-    }
-
-    /* type colors */
     .normal   { background: #a8a878; color: #fff; }
     .fire     { background: #f08030; color: #fff; }
     .water    { background: #6890f0; color: #fff; }
@@ -274,34 +288,20 @@
 
   <div class="toggle-row">
     <input type="radio" id="modePoke" name="mode" value="pokemon" checked>
-    <label for="modePoke">Pokémon #</label>
+    <label for="modePoke">Pokémon</label>
     <input type="radio" id="modeBox" name="mode" value="box">
     <label for="modeBox">Box #</label>
   </div>
 
   <div class="input-row">
-    <input id="numInput" type="number" min="1" placeholder="#001" autofocus />
-    <button onclick="lookup()">Go</button>
+    <input id="searchInput" type="text" placeholder="Name or #001" autofocus />
+    <button class="go-btn" onclick="lookup()">Go</button>
   </div>
   <div id="error" class="error"></div>
 
-  <div id="card" class="card">
-    <img id="sprite" class="poke-sprite" src="" alt="" />
-    <div class="poke-name" id="pokeName"></div>
-    <div class="poke-numbers" id="pokeNumbers"></div>
-    <div class="types" id="types"></div>
-    <div class="divider"></div>
-    <div class="box-info">
-      <div class="box-label">Box</div>
-      <div class="box-number" id="boxNum"></div>
-      <div class="box-slot" id="boxSlot"></div>
-    </div>
-    <div class="box-grid" id="boxGrid"></div>
-  </div>
+  <div id="card" class="card"></div>
 
   <script>
-    const dexCache = {};
-
     const DEX_LABELS = {
       'national':          'National',
       'kanto':             'Kanto — RBY',
@@ -320,14 +320,14 @@
       'letsgo-kanto':      "Kanto — Let's Go",
       'original-alola':    'Alola — SM',
       'updated-alola':     'Alola — USUM',
-      'original-melemele': "Melemele — SM",
-      'original-akala':    "Akala — SM",
+      'original-melemele': 'Melemele — SM',
+      'original-akala':    'Akala — SM',
       'original-ulaula':   "Ula'ula — SM",
-      'original-poni':     "Poni — SM",
-      'updated-melemele':  "Melemele — USUM",
-      'updated-akala':     "Akala — USUM",
+      'original-poni':     'Poni — SM',
+      'updated-melemele':  'Melemele — USUM',
+      'updated-akala':     'Akala — USUM',
       'updated-ulaula':    "Ula'ula — USUM",
-      'updated-poni':      "Poni — USUM",
+      'updated-poni':      'Poni — USUM',
       'galar':             'Galar — SwSh',
       'isle-of-armor':     'Isle of Armor — SwSh',
       'crown-tundra':      'Crown Tundra — SwSh',
@@ -337,9 +337,16 @@
       'blueberry':         'Blueberry Academy — SV',
     };
 
+    const dexCache = {};
+    const dexSizes = { national: 1025 };
+    let currentBox = 1;
+
     function formatDexName(name) {
-      return DEX_LABELS[name] ?? name.split('-').map(w => w.charAt(0).toUpperCase() + w.slice(1)).join(' ');
+      return DEX_LABELS[name] ?? name.split('-').map(w => w[0].toUpperCase() + w.slice(1)).join(' ');
     }
+
+    function getDex()  { return document.getElementById('dexSelect').value; }
+    function getMode() { return document.querySelector('input[name="mode"]:checked').value; }
 
     async function loadDex(name) {
       if (name === 'national') return null;
@@ -347,147 +354,345 @@
       const res = await fetch(`https://pokeapi.co/api/v2/pokedex/${name}`);
       if (!res.ok) throw new Error('Dex not found');
       const data = await res.json();
-      const map = [];
+      const map = [null]; // 1-indexed: map[dexPos] = nationalId
       for (const entry of data.pokemon_entries) {
         const national = parseInt(entry.pokemon_species.url.split('/').filter(Boolean).pop());
-        map[entry.entry_number - 1] = national;
+        map[entry.entry_number] = national;
       }
+      dexSizes[name] = data.pokemon_entries.length;
       dexCache[name] = map;
       return map;
     }
 
-    function getMode() { return document.querySelector('input[name="mode"]:checked').value; }
-    function getDex()  { return document.getElementById('dexSelect').value; }
+    /* localStorage helpers */
+    function getCaught(dexName) {
+      return new Set(JSON.parse(localStorage.getItem(`caught_${dexName}`) ?? '[]'));
+    }
+    function saveCaught(dexName, set) {
+      localStorage.setItem(`caught_${dexName}`, JSON.stringify([...set]));
+    }
+    function toggleCaughtEntry(dexName, dexPos) {
+      const s = getCaught(dexName);
+      s.has(dexPos) ? s.delete(dexPos) : s.add(dexPos);
+      saveCaught(dexName, s);
+      return s.has(dexPos);
+    }
+    function getBoxName(dexName, box) {
+      return (JSON.parse(localStorage.getItem(`boxnames_${dexName}`) ?? '{}'))[box] ?? '';
+    }
+    function saveBoxName(dexName, box, name) {
+      const obj = JSON.parse(localStorage.getItem(`boxnames_${dexName}`) ?? '{}');
+      name ? (obj[box] = name) : delete obj[box];
+      localStorage.setItem(`boxnames_${dexName}`, JSON.stringify(obj));
+    }
 
-    function renderGrid(dexMap, box, activeSlot = null) {
-      const grid = document.getElementById('boxGrid');
-      grid.innerHTML = '';
+    /* grid builder */
+    function buildGrid(dexMap, box, activeSlot, dexName, onCellClick) {
+      const caught = getCaught(dexName);
+      const grid   = document.createElement('div');
+      grid.className = 'box-grid';
       const start = (box - 1) * 30;
+
       for (let i = 0; i < 30; i++) {
-        const dexIndex = start + i;
-        const pokeId = dexMap ? dexMap[dexIndex] : (dexIndex + 1);
-        const isActive = activeSlot !== null && (i + 1) === activeSlot;
+        const dexPos  = start + i + 1;
+        const pokeId  = dexMap ? (dexMap[dexPos] ?? null) : dexPos;
+        const isActive  = dexPos === activeSlot;
+        const isCaught  = caught.has(dexPos);
+
         const cell = document.createElement('div');
-        cell.className = 'box-cell' + (isActive ? ' active' : '');
+        cell.className = 'box-cell' +
+          (isActive ? ' active'  : '') +
+          (isCaught ? ' caught'  : '');
+
         if (pokeId) {
           const img = document.createElement('img');
           img.src = `https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/${pokeId}.png`;
           img.alt = `#${pokeId}`;
           img.title = `#${String(pokeId).padStart(4,'0')}`;
-          img.onerror = function() { this.style.opacity = '0'; };
+          img.onerror = () => { img.style.opacity = '0'; };
+          cell.addEventListener('click', () => onCellClick(dexPos));
+
+          const btn = document.createElement('button');
+          btn.className = 'caught-btn';
+          btn.title = isCaught ? 'Unmark' : 'Mark as caught';
+          btn.textContent = '✓';
+          btn.addEventListener('click', e => {
+            e.stopPropagation();
+            const nowCaught = toggleCaughtEntry(dexName, dexPos);
+            cell.classList.toggle('caught', nowCaught);
+            btn.title = nowCaught ? 'Unmark' : 'Mark as caught';
+            refreshCompletion(dexName);
+          });
+
           cell.appendChild(img);
+          cell.appendChild(btn);
         } else {
-          cell.innerHTML = `<span class="cell-num">${dexIndex + 1}</span>`;
+          const span = document.createElement('span');
+          span.className = 'cell-num';
+          span.textContent = dexPos;
+          cell.appendChild(span);
         }
+
         grid.appendChild(cell);
       }
+      return grid;
     }
 
-    function reset() {
-      document.getElementById('numInput').value = '';
-      document.getElementById('card').classList.remove('visible');
-      document.getElementById('error').textContent = '';
+    function refreshCompletion(dexName) {
+      const el = document.getElementById('completion-display');
+      if (!el) return;
+      const count = getCaught(dexName).size;
+      const total = dexSizes[dexName] ?? '?';
+      el.innerHTML = `<strong>${count}</strong> / ${total} caught`;
     }
 
-    const input = document.getElementById('numInput');
-    input.addEventListener('keydown', e => { if (e.key === 'Enter') lookup(); });
+    function buildNavRow(box, dexName, dexMap) {
+      const row = document.createElement('div');
+      row.className = 'nav-row';
 
-    document.querySelectorAll('input[name="mode"]').forEach(r => {
-      r.addEventListener('change', () => {
-        input.placeholder = r.value === 'box' ? 'Box 1' : '#001';
-        reset();
-      });
-    });
+      const prev = document.createElement('button');
+      prev.className = 'nav-btn';
+      prev.textContent = '←';
+      prev.disabled = box <= 1;
+      prev.addEventListener('click', () => showBox(box - 1, dexName, dexMap));
 
-    document.getElementById('dexSelect').addEventListener('change', reset);
+      const label = document.createElement('span');
+      label.className = 'nav-label';
+      label.textContent = `Box ${box}`;
 
-    async function lookup() {
-      const raw = parseInt(input.value);
-      const errorEl = document.getElementById('error');
+      const next = document.createElement('button');
+      next.className = 'nav-btn';
+      next.textContent = '→';
+      next.addEventListener('click', () => showBox(box + 1, dexName, dexMap));
+
+      row.appendChild(prev);
+      row.appendChild(label);
+      row.appendChild(next);
+      return row;
+    }
+
+    /* renderers */
+    function showPokemonCard(dexPos, nationalNum, data, dexName, dexMap) {
+      const box  = Math.ceil(dexPos / 30);
+      const slot = ((dexPos - 1) % 30) + 1;
+      currentBox = box;
+
+      const caught   = getCaught(dexName);
+      const isCaught = caught.has(dexPos);
+      const total    = dexSizes[dexName] ?? '?';
+
       const card = document.getElementById('card');
-      const mode = getMode();
+      card.innerHTML = '';
+
+      const sprite = document.createElement('img');
+      sprite.className = 'poke-sprite';
+      sprite.src = data.sprites.other['official-artwork'].front_default || data.sprites.front_default;
+      sprite.alt = data.name;
+      card.appendChild(sprite);
+
+      const nameRow = document.createElement('div');
+      nameRow.className = 'name-row';
+      const nameEl = document.createElement('span');
+      nameEl.className = 'poke-name';
+      nameEl.textContent = data.name;
+      nameRow.appendChild(nameEl);
+      if (isCaught) {
+        nameRow.appendChild(Object.assign(document.createElement('span'), { className: 'caught-badge', textContent: '✓' }));
+      }
+      card.appendChild(nameRow);
+
+      const numsEl = document.createElement('div');
+      numsEl.className = 'poke-numbers';
+      numsEl.innerHTML = dexMap
+        ? `<span><div>${formatDexName(dexName)}</div><strong>#${String(dexPos).padStart(3,'0')}</strong></span>
+           <span><div>National</div><strong>#${String(nationalNum).padStart(4,'0')}</strong></span>`
+        : `<span><div>National</div><strong>#${String(nationalNum).padStart(4,'0')}</strong></span>`;
+      card.appendChild(numsEl);
+
+      const typesEl = document.createElement('div');
+      typesEl.className = 'types';
+      typesEl.innerHTML = data.types.map(t => `<span class="type-badge ${t.type.name}">${t.type.name}</span>`).join('');
+      card.appendChild(typesEl);
+
+      const caughtBtn = document.createElement('button');
+      caughtBtn.className = 'caught-toggle' + (isCaught ? ' is-caught' : '');
+      caughtBtn.textContent = isCaught ? '✓ Caught' : '+ Mark as caught';
+      caughtBtn.addEventListener('click', () => {
+        toggleCaughtEntry(dexName, dexPos);
+        showPokemonCard(dexPos, nationalNum, data, dexName, dexMap);
+      });
+      card.appendChild(caughtBtn);
+
+      const compEl = document.createElement('div');
+      compEl.className = 'completion-text';
+      compEl.id = 'completion-display';
+      compEl.innerHTML = `<strong>${caught.size}</strong> / ${total} caught`;
+      card.appendChild(compEl);
+
+      card.appendChild(Object.assign(document.createElement('div'), { className: 'divider' }));
+
+      const boxInfo = document.createElement('div');
+      boxInfo.className = 'box-info';
+      boxInfo.innerHTML = `<div class="box-label">Box</div>
+        <div class="box-number">${box}</div>
+        <div class="box-slot">Slot ${slot} of 30</div>`;
+      card.appendChild(boxInfo);
+
+      card.appendChild(buildNavRow(box, dexName, dexMap));
+      card.appendChild(buildGrid(dexMap, box, dexPos, dexName, pos => navigateToPokemon(pos, dexName, dexMap)));
+
+      card.classList.add('visible');
+    }
+
+    function showBox(box, dexName, dexMap) {
+      if (box < 1) return;
+      currentBox = box;
+      document.getElementById('modeBox').checked = true;
+      document.getElementById('searchInput').value = box;
+
+      const caught    = getCaught(dexName);
+      const total     = dexSizes[dexName] ?? '?';
+      const start     = (box - 1) * 30 + 1;
+      const end       = box * 30;
+      const savedName = getBoxName(dexName, box);
+
+      const card = document.getElementById('card');
+      card.innerHTML = '';
+
+      const nameEl = document.createElement('div');
+      nameEl.className = 'box-name-edit';
+      nameEl.contentEditable = 'true';
+      nameEl.spellcheck = false;
+      nameEl.textContent = savedName || `Box ${box}`;
+      nameEl.addEventListener('blur', () => {
+        const val = nameEl.textContent.trim();
+        saveBoxName(dexName, box, val === `Box ${box}` ? '' : val);
+      });
+      nameEl.addEventListener('keydown', e => { if (e.key === 'Enter') { e.preventDefault(); nameEl.blur(); } });
+      card.appendChild(nameEl);
+
+      const rangeEl = document.createElement('div');
+      rangeEl.className = 'box-range';
+      rangeEl.textContent = `${formatDexName(dexName)} #${start} – #${end}`;
+      card.appendChild(rangeEl);
+
+      const compEl = document.createElement('div');
+      compEl.className = 'completion-text';
+      compEl.id = 'completion-display';
+      compEl.innerHTML = `<strong>${caught.size}</strong> / ${total} caught`;
+      card.appendChild(compEl);
+
+      card.appendChild(Object.assign(document.createElement('div'), { className: 'divider' }));
+      card.appendChild(buildNavRow(box, dexName, dexMap));
+      card.appendChild(buildGrid(dexMap, box, null, dexName, pos => navigateToPokemon(pos, dexName, dexMap)));
+
+      card.classList.add('visible');
+    }
+
+    async function navigateToPokemon(dexPos, dexName, dexMap) {
+      const nationalNum = dexMap ? (dexMap[dexPos] ?? null) : dexPos;
+      if (!nationalNum) return;
+      try {
+        const res  = await fetch(`https://pokeapi.co/api/v2/pokemon/${nationalNum}`);
+        const data = await res.json();
+        document.getElementById('modePoke').checked = true;
+        document.getElementById('searchInput').value = dexPos;
+        showPokemonCard(dexPos, nationalNum, data, dexName, dexMap);
+      } catch {}
+    }
+
+    /* main lookup */
+    async function lookup() {
+      const raw     = document.getElementById('searchInput').value.trim();
+      const errorEl = document.getElementById('error');
+      const mode    = getMode();
       const dexName = getDex();
 
       errorEl.textContent = '';
-      card.classList.remove('visible');
-
-      if (!raw || raw < 1) {
-        errorEl.textContent = `Enter a valid ${mode === 'box' ? 'box' : 'Pokémon'} number.`;
-        return;
-      }
+      if (!raw) { errorEl.textContent = 'Enter a name or number.'; return; }
 
       let dexMap;
-      try {
-        dexMap = await loadDex(dexName);
-      } catch {
-        errorEl.textContent = 'Failed to load dex data. Check your connection.';
-        return;
-      }
+      try { dexMap = await loadDex(dexName); }
+      catch { errorEl.textContent = 'Failed to load dex data.'; return; }
+
+      const isNumber = /^\d+$/.test(raw);
 
       if (mode === 'box') {
-        const start = (raw - 1) * 30 + 1;
-        const end = raw * 30;
-        document.getElementById('sprite').style.display = 'none';
-        document.getElementById('pokeName').textContent = `Box ${raw}`;
-        document.getElementById('pokeNumbers').innerHTML = `
-          <span><div>${formatDexName(dexName)}</div><strong>#${start} – #${end}</strong></span>
-        `;
-        document.getElementById('types').innerHTML = '';
-        document.getElementById('boxNum').textContent = raw;
-        document.getElementById('boxSlot').textContent = '';
-        renderGrid(dexMap, raw, null);
-        card.classList.add('visible');
+        const box = parseInt(raw);
+        if (!box || box < 1) { errorEl.textContent = 'Enter a valid box number.'; return; }
+        showBox(box, dexName, dexMap);
         return;
       }
 
-      document.getElementById('sprite').style.display = '';
-      const dexNum = raw;
-      const nationalNum = dexMap ? (dexMap[dexNum - 1] ?? null) : dexNum;
+      let nationalNum, dexPos;
 
-      if (!nationalNum) {
-        errorEl.textContent = `#${dexNum} is out of range for the ${formatDexName(dexName)} dex.`;
-        return;
+      if (isNumber) {
+        dexPos      = parseInt(raw);
+        nationalNum = dexMap ? (dexMap[dexPos] ?? null) : dexPos;
+        if (!nationalNum) { errorEl.textContent = `#${dexPos} is out of range for this dex.`; return; }
+      } else {
+        try {
+          const res  = await fetch(`https://pokeapi.co/api/v2/pokemon/${raw.toLowerCase()}`);
+          if (!res.ok) throw new Error();
+          const data = await res.json();
+          nationalNum = data.id;
+          if (dexMap) {
+            dexPos = dexMap.indexOf(nationalNum);
+            if (dexPos === -1) {
+              errorEl.textContent = `${data.name} is not in the ${formatDexName(dexName)} dex.`;
+              return;
+            }
+          } else {
+            dexPos = nationalNum;
+          }
+          showPokemonCard(dexPos, nationalNum, data, dexName, dexMap);
+          return;
+        } catch {
+          errorEl.textContent = `Could not find a Pokémon named "${raw}".`;
+          return;
+        }
       }
 
       try {
-        const res = await fetch(`https://pokeapi.co/api/v2/pokemon/${nationalNum}`);
-        if (!res.ok) throw new Error('not found');
+        const res  = await fetch(`https://pokeapi.co/api/v2/pokemon/${nationalNum}`);
+        if (!res.ok) throw new Error();
         const data = await res.json();
-
-        document.getElementById('sprite').src =
-          data.sprites.other['official-artwork'].front_default ||
-          data.sprites.front_default;
-        document.getElementById('pokeName').textContent = data.name;
-
-        const numsEl = document.getElementById('pokeNumbers');
-        if (dexMap) {
-          numsEl.innerHTML = `
-            <span><div>${formatDexName(dexName)}</div><strong>#${String(dexNum).padStart(3,'0')}</strong></span>
-            <span><div>National</div><strong>#${String(nationalNum).padStart(4,'0')}</strong></span>
-          `;
-        } else {
-          numsEl.innerHTML = `
-            <span><div>National</div><strong>#${String(nationalNum).padStart(4,'0')}</strong></span>
-          `;
-        }
-
-        document.getElementById('types').innerHTML = data.types
-          .map(t => `<span class="type-badge ${t.type.name}">${t.type.name}</span>`)
-          .join('');
-
-        const box  = Math.ceil(dexNum / 30);
-        const slot = ((dexNum - 1) % 30) + 1;
-        document.getElementById('boxNum').textContent  = box;
-        document.getElementById('boxSlot').textContent = `Slot ${slot} of 30`;
-
-        renderGrid(dexMap, box, slot);
-        card.classList.add('visible');
+        showPokemonCard(dexPos, nationalNum, data, dexName, dexMap);
       } catch {
-        errorEl.textContent = `Could not find Pokémon #${nationalNum} (National).`;
+        errorEl.textContent = `Could not find Pokémon #${nationalNum}.`;
       }
     }
 
-    // Populate dex dropdown from PokéAPI
+    /* keyboard nav */
+    document.addEventListener('keydown', e => {
+      if (document.activeElement.tagName === 'INPUT' ||
+          document.activeElement.contentEditable === 'true') return;
+      const dexName = getDex();
+      const dexMap  = dexCache[dexName] ?? null;
+      if (e.key === 'ArrowLeft')  showBox(currentBox - 1, dexName, dexMap);
+      if (e.key === 'ArrowRight') showBox(currentBox + 1, dexName, dexMap);
+    });
+
+    document.getElementById('searchInput').addEventListener('keydown', e => {
+      if (e.key === 'Enter') lookup();
+    });
+
+    document.getElementById('dexSelect').addEventListener('change', () => {
+      document.getElementById('searchInput').value = '';
+      document.getElementById('card').classList.remove('visible');
+      document.getElementById('error').textContent = '';
+    });
+
+    document.querySelectorAll('input[name="mode"]').forEach(r => {
+      r.addEventListener('change', () => {
+        document.getElementById('searchInput').placeholder = r.value === 'box' ? 'Box 1' : 'Name or #001';
+        document.getElementById('searchInput').value = '';
+        document.getElementById('card').classList.remove('visible');
+        document.getElementById('error').textContent = '';
+      });
+    });
+
+    /* load dex list */
     fetch('https://pokeapi.co/api/v2/pokedex?limit=100')
       .then(r => r.json())
       .then(data => {
@@ -501,7 +706,7 @@
           select.appendChild(opt);
         }
       })
-      .catch(() => {}); // keep the default National option on failure
+      .catch(() => {});
   </script>
 </body>
 </html>
