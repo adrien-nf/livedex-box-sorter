@@ -205,6 +205,14 @@ function regionalCaughtCount(dexName) {
   return [...caught].filter(n => inDex.has(n)).length;
 }
 
+function caughtStats(dexName) {
+  if (getBoxLayout() === 'national' && dexName) {
+    const caught = getCaught();
+    return { count: [...caught].filter(n => n <= currentNatCap).length, total: currentNatCap };
+  }
+  return { count: regionalCaughtCount(dexName), total: dexSizes[dexName ?? 'national'] ?? 1025 };
+}
+
 // ── grid ──────────────────────────────────────────────────────────────────────
 
 function buildGrid(dexMap, box, activeNatId, dexName, onCellClick) {
@@ -280,8 +288,7 @@ function buildGrid(dexMap, box, activeNatId, dexName, onCellClick) {
 function refreshCompletion(dexName) {
   const el = document.getElementById('completion-display');
   if (!el) return;
-  const count = regionalCaughtCount(dexName);
-  const total = dexSizes[dexName ?? 'national'] ?? 1025;
+  const { count, total } = caughtStats(dexName);
   el.innerHTML = `<strong>${count}</strong> / ${total} caught`;
 }
 
@@ -322,9 +329,9 @@ function showPokemonCard(dexPos, nationalNum, data, dexName, dexMap) {
   const slot    = ((pos4box - 1) % 30) + 1;
   currentBox    = box;
 
-  const caught   = getCaught();
-  const isCaught = caught.has(nationalNum);
-  const total    = dexSizes[dexName ?? 'national'] ?? 1025;
+  const caught          = getCaught();
+  const isCaught        = caught.has(nationalNum);
+  const { count: caughtCount, total } = caughtStats(dexName);
 
   const card = document.getElementById('card');
   card.innerHTML = '';
@@ -371,7 +378,7 @@ function showPokemonCard(dexPos, nationalNum, data, dexName, dexMap) {
   const compEl = document.createElement('div');
   compEl.className = 'completion-text';
   compEl.id        = 'completion-display';
-  compEl.innerHTML = `<strong>${regionalCaughtCount(dexName)}</strong> / ${total} caught`;
+  compEl.innerHTML = `<strong>${caughtCount}</strong> / ${total} caught`;
   card.appendChild(compEl);
 
   card.appendChild(Object.assign(document.createElement('div'), { className: 'divider' }));
@@ -388,13 +395,15 @@ function showPokemonCard(dexPos, nationalNum, data, dexName, dexMap) {
   card.classList.add('visible');
 }
 
-function showBox(box, dexName, dexMap) {
+function showBox(box, dexName, dexMap, { updateInput = true } = {}) {
   if (box < 1) return;
   currentBox = box;
-  document.getElementById('modeBox').checked   = true;
-  document.getElementById('searchInput').value = box;
+  if (updateInput) {
+    document.getElementById('modeBox').checked   = true;
+    document.getElementById('searchInput').value = box;
+  }
 
-  const total     = dexSizes[dexName ?? 'national'] ?? 1025;
+  const { count: caughtCount, total } = caughtStats(dexName);
   const start     = (box - 1) * 30 + 1;
   const end       = box * 30;
   const savedName = getBoxName(box);
@@ -424,7 +433,7 @@ function showBox(box, dexName, dexMap) {
   const compEl = document.createElement('div');
   compEl.className = 'completion-text';
   compEl.id        = 'completion-display';
-  compEl.innerHTML = `<strong>${regionalCaughtCount(dexName)}</strong> / ${total} caught`;
+  compEl.innerHTML = `<strong>${caughtCount}</strong> / ${total} caught`;
   card.appendChild(compEl);
 
   card.appendChild(Object.assign(document.createElement('div'), { className: 'divider' }));
@@ -546,7 +555,7 @@ document.querySelectorAll('input[name="layout"]').forEach(r => {
     document.getElementById('error').textContent = '';
     if (currentDexName) {
       const dexMap = dexCache[currentDexName] ?? null;
-      showBox(currentBox || 1, currentDexName, dexMap);
+      showBox(currentBox || 1, currentDexName, dexMap, { updateInput: false });
     } else {
       document.getElementById('searchInput').value = '';
       document.getElementById('card').classList.remove('visible');
