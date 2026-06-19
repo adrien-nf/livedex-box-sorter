@@ -74,6 +74,14 @@ const NATIONAL_CAP = {
   'generation-ix':   1025,
 };
 
+// Pokémon per box — Gen I/II used 20-slot boxes; everything else uses 30
+const BOX_CAPACITY = {
+  'red-blue':    20,
+  'yellow':      20,
+  'gold-silver': 20,
+  'crystal':     20,
+};
+
 const DEX_LABELS = {
   'kanto':             'Kanto — RBY',
   'original-johto':    'Johto — GSC',
@@ -103,12 +111,15 @@ const dexCache    = {};
 const dexNatToReg = {};
 const dexSizes    = { national: 1025 };
 
-let currentGameGroup = 'national';
-let currentDexName   = null;
-let currentNatCap    = 1025;
-let currentBox       = 1;
+let currentGameGroup    = 'national';
+let currentDexName      = null;
+let currentNatCap       = 1025;
+let currentBoxCapacity  = 30;
+let currentBox          = 1;
 
 // ── helpers ───────────────────────────────────────────────────────────────────
+
+function gridCols(cap) { return cap <= 20 ? 5 : 6; }
 
 function formatGroupName(name) {
   return VERSION_GROUP_LABELS[name] ?? name.split('-').map(w => w[0].toUpperCase() + w.slice(1)).join(' ');
@@ -123,8 +134,8 @@ function getMode()      { return document.querySelector('input[name="mode"]:chec
 function getBoxLayout() { return document.querySelector('input[name="layout"]:checked')?.value ?? 'regional'; }
 
 function getMaxBox(dexMap) {
-  if (getBoxLayout() === 'national' && dexMap) return Math.ceil(currentNatCap / 30);
-  return Math.ceil((dexSizes[currentDexName ?? 'national'] ?? 1025) / 30);
+  if (getBoxLayout() === 'national' && dexMap) return Math.ceil(currentNatCap / currentBoxCapacity);
+  return Math.ceil((dexSizes[currentDexName ?? 'national'] ?? 1025) / currentBoxCapacity);
 }
 
 // ── data loading ──────────────────────────────────────────────────────────────
@@ -154,9 +165,11 @@ async function loadDex(name) {
 
 async function resolveGame(groupName) {
   if (groupName === 'national') {
-    currentGameGroup = 'national';
-    currentDexName   = null;
-    currentNatCap    = 1025;
+    currentGameGroup   = 'national';
+    currentDexName     = null;
+    currentNatCap      = 1025;
+    currentBoxCapacity = 30;
+    document.getElementById('boxCapSubtitle').textContent = 'Boxes hold 30 Pokémon each';
     return null;
   }
 
@@ -167,9 +180,11 @@ async function resolveGame(groupName) {
   const dexName = data.pokedexes[0]?.name ?? null;
   const genName = data.generation.name;
 
-  currentGameGroup = groupName;
-  currentDexName   = dexName;
-  currentNatCap    = NATIONAL_CAP[genName] ?? 1025;
+  currentGameGroup   = groupName;
+  currentDexName     = dexName;
+  currentNatCap      = NATIONAL_CAP[genName] ?? 1025;
+  currentBoxCapacity = BOX_CAPACITY[groupName] ?? 30;
+  document.getElementById('boxCapSubtitle').textContent = `Boxes hold ${currentBoxCapacity} Pokémon each`;
 
   return dexName ? await loadDex(dexName) : null;
 }
@@ -222,12 +237,13 @@ function buildGrid(dexMap, box, activeNatId, dexName, onCellClick) {
 
   const grid = document.createElement('div');
   grid.className = 'box-grid';
+  grid.style.gridTemplateColumns = `repeat(${gridCols(currentBoxCapacity)}, 1fr)`;
 
-  for (let i = 0; i < 30; i++) {
+  for (let i = 0; i < currentBoxCapacity; i++) {
     let dexPos, pokeId, inRegionalDex = true;
 
     if (useNational) {
-      const natId = (box - 1) * 30 + i + 1;
+      const natId = (box - 1) * currentBoxCapacity + i + 1;
       if (natId > currentNatCap) {
         const emptyCell = document.createElement('div');
         emptyCell.className = 'box-cell';
@@ -238,7 +254,7 @@ function buildGrid(dexMap, box, activeNatId, dexName, onCellClick) {
       dexPos        = natToReg?.[natId] ?? null;
       inRegionalDex = dexPos !== null;
     } else {
-      dexPos = (box - 1) * 30 + i + 1;
+      dexPos = (box - 1) * currentBoxCapacity + i + 1;
       pokeId = dexMap ? (dexMap[dexPos] ?? null) : dexPos;
     }
 
@@ -325,8 +341,8 @@ function buildNavRow(box, dexName, dexMap) {
 function showPokemonCard(dexPos, nationalNum, data, dexName, dexMap) {
   const useNat  = getBoxLayout() === 'national' && dexMap;
   const pos4box = useNat ? nationalNum : (dexPos ?? nationalNum);
-  const box     = Math.ceil(pos4box / 30);
-  const slot    = ((pos4box - 1) % 30) + 1;
+  const box     = Math.ceil(pos4box / currentBoxCapacity);
+  const slot    = ((pos4box - 1) % currentBoxCapacity) + 1;
   currentBox    = box;
 
   const caught          = getCaught();
@@ -387,7 +403,7 @@ function showPokemonCard(dexPos, nationalNum, data, dexName, dexMap) {
   boxInfo.className = 'box-info';
   boxInfo.innerHTML = `<div class="box-label">Box</div>
     <div class="box-number">${box}</div>
-    <div class="box-slot">Slot ${slot} of 30</div>`;
+    <div class="box-slot">Slot ${slot} of ${currentBoxCapacity}</div>`;
   card.appendChild(boxInfo);
 
   card.appendChild(buildNavRow(box, dexName, dexMap));
@@ -404,8 +420,8 @@ function showBox(box, dexName, dexMap, { updateInput = true } = {}) {
   }
 
   const { count: caughtCount, total } = caughtStats(dexName);
-  const start     = (box - 1) * 30 + 1;
-  const end       = box * 30;
+  const start     = (box - 1) * currentBoxCapacity + 1;
+  const end       = box * currentBoxCapacity;
   const savedName = getBoxName(box);
 
   const card = document.getElementById('card');

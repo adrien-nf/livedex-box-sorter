@@ -196,7 +196,6 @@ button.go-btn:active { transform: scale(0.97); }
 
 .box-grid {
   display: grid;
-  grid-template-columns: repeat(6, 1fr);
   gap: 4px;
   width: 100%;
 }
