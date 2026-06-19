@@ -543,9 +543,14 @@ document.getElementById('dexSelect').addEventListener('change', async () => {
 
 document.querySelectorAll('input[name="layout"]').forEach(r => {
   r.addEventListener('change', () => {
-    document.getElementById('searchInput').value = '';
-    document.getElementById('card').classList.remove('visible');
     document.getElementById('error').textContent = '';
+    if (currentDexName) {
+      const dexMap = dexCache[currentDexName] ?? null;
+      showBox(currentBox || 1, currentDexName, dexMap);
+    } else {
+      document.getElementById('searchInput').value = '';
+      document.getElementById('card').classList.remove('visible');
+    }
   });
 });
 
