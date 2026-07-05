@@ -1,0 +1,52 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>EV Training Tracker</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <nav class="navbar">
+    <a href="index.html" class="nav-link">Pokédex</a>
+    <a href="ev-trainer.html" class="nav-link active">EV Trainer</a>
+  </nav>
+
+  <h1>EV Training Tracker</h1>
+
+  <div class="clock-sticky">
+    <div id="clock" class="clock">--:--:--</div>
+    <div id="clockDate" class="clock-date"></div>
+  </div>
+
+  <div class="ev-layout">
+    <div class="ev-roster-col">
+      <div class="input-row">
+        <input id="addInput" type="text" placeholder="Name or #001" autofocus />
+        <button class="go-btn" id="addBtn">Add</button>
+      </div>
+      <div id="addError" class="error"></div>
+
+      <div id="pokemonRoster" class="ev-roster"></div>
+    </div>
+
+    <div class="ev-main-col">
+      <div id="yieldPanel" class="yield-panel"></div>
+
+      <div id="activeCard"></div>
+    </div>
+
+    <div class="ev-side-col">
+      <div class="history-panel">
+        <div class="history-header">
+          <span>History</span>
+          <button id="undoBtn" disabled>Undo last</button>
+        </div>
+        <div id="historyLog" class="history-log"></div>
+      </div>
+    </div>
+  </div>
+
+  <script src="ev.js"></script>
+</body>
+</html>
