@@ -213,6 +213,19 @@ function saveBoxName(box, name) {
   localStorage.setItem(`boxnames_${currentGameGroup}`, JSON.stringify(obj));
 }
 
+// Remembers the last-used game/mode/layout/search so a reload picks up where we left off
+function saveLastState() {
+  localStorage.setItem('lastState', JSON.stringify({
+    group:  document.getElementById('dexSelect').value,
+    mode:   getMode(),
+    layout: getBoxLayout(),
+    input:  document.getElementById('searchInput').value,
+  }));
+}
+function loadLastState() {
+  try { return JSON.parse(localStorage.getItem('lastState')); } catch { return null; }
+}
+
 function regionalCaughtCount(dexName) {
   const caught = getCaught();
   if (!dexName) return caught.size;
@@ -409,6 +422,7 @@ function showPokemonCard(dexPos, nationalNum, data, dexName, dexMap) {
   card.appendChild(buildNavRow(box, dexName, dexMap));
   card.appendChild(buildGrid(dexMap, box, nationalNum, dexName, (dp, nat) => navigateToPokemon(dp, nat, dexName, dexMap)));
   card.classList.add('visible');
+  saveLastState();
 }
 
 function showBox(box, dexName, dexMap, { updateInput = true } = {}) {
@@ -456,6 +470,7 @@ function showBox(box, dexName, dexMap, { updateInput = true } = {}) {
   card.appendChild(buildNavRow(box, dexName, dexMap));
   card.appendChild(buildGrid(dexMap, box, null, dexName, (dp, nat) => navigateToPokemon(dp, nat, dexName, dexMap)));
   card.classList.add('visible');
+  saveLastState();
 }
 
 async function navigateToPokemon(dexPos, nationalNum, dexName, dexMap) {
@@ -564,6 +579,7 @@ document.getElementById('dexSelect').addEventListener('change', async () => {
   } catch {
     document.getElementById('error').textContent = 'Failed to load game data.';
   }
+  saveLastState();
 });
 
 document.querySelectorAll('input[name="layout"]').forEach(r => {
@@ -576,6 +592,7 @@ document.querySelectorAll('input[name="layout"]').forEach(r => {
       document.getElementById('searchInput').value = '';
       document.getElementById('card').classList.remove('visible');
     }
+    saveLastState();
   });
 });
 
@@ -585,6 +602,7 @@ document.querySelectorAll('input[name="mode"]').forEach(r => {
     document.getElementById('searchInput').value = '';
     document.getElementById('card').classList.remove('visible');
     document.getElementById('error').textContent = '';
+    saveLastState();
   });
 });
 
@@ -624,5 +642,33 @@ fetch('https://pokeapi.co/api/v2/version-group?limit=50')
       }
       select.appendChild(optgroup);
     }
+
+    restoreLastState();
   })
   .catch(() => {});
+
+async function restoreLastState() {
+  const state = loadLastState();
+  if (!state) return;
+
+  const select = document.getElementById('dexSelect');
+  if (state.group && [...select.options].some(o => o.value === state.group)) {
+    select.value = state.group;
+  }
+  document.getElementById('layoutToggle').style.display = select.value === 'national' ? 'none' : '';
+  document.getElementById(state.layout === 'national' ? 'layoutNat' : 'layoutReg').checked = true;
+  document.getElementById(state.mode === 'box' ? 'modeBox' : 'modePoke').checked = true;
+  document.getElementById('searchInput').placeholder = state.mode === 'box' ? 'Box 1' : 'Name or #001';
+
+  try {
+    await resolveGame(select.value);
+  } catch {
+    document.getElementById('error').textContent = 'Failed to load game data.';
+    return;
+  }
+
+  if (state.input) {
+    document.getElementById('searchInput').value = state.input;
+    lookup();
+  }
+}
