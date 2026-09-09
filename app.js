@@ -1,28 +1,74 @@
 // ── static config ─────────────────────────────────────────────────────────────
 
-const VERSION_GROUP_LABELS = {
-  'red-blue':                        'Red / Blue',
-  'yellow':                          'Yellow',
-  'gold-silver':                     'Gold / Silver',
-  'crystal':                         'Crystal',
-  'ruby-sapphire':                   'Ruby / Sapphire',
-  'emerald':                         'Emerald',
-  'firered-leafgreen':               'FireRed / LeafGreen',
-  'diamond-pearl':                   'Diamond / Pearl',
-  'platinum':                        'Platinum',
-  'heartgold-soulsilver':            'HeartGold / SoulSilver',
-  'black-white':                     'Black / White',
-  'black-2-white-2':                 'Black 2 / White 2',
-  'x-y':                             'X / Y',
-  'omega-ruby-alpha-sapphire':       'OmegaRuby / AlphaSapphire',
-  'sun-moon':                        'Sun / Moon',
-  'ultra-sun-ultra-moon':            'Ultra Sun / Ultra Moon',
-  'lets-go-pikachu-eevee':           "Let's Go Pikachu / Eevee",
-  'sword-shield':                    'Sword / Shield',
-  'brilliant-diamond-shining-pearl': 'Brilliant Diamond / Shining Pearl',
-  'legends-arceus':                  'Legends: Arceus',
-  'scarlet-violet':                  'Scarlet / Violet',
+// Maps version-group slug to its individual game versions (in display order)
+const GROUP_VERSIONS = {
+  'red-blue':                        ['red', 'blue'],
+  'yellow':                          ['yellow'],
+  'gold-silver':                     ['gold', 'silver'],
+  'crystal':                         ['crystal'],
+  'ruby-sapphire':                   ['ruby', 'sapphire'],
+  'emerald':                         ['emerald'],
+  'firered-leafgreen':               ['firered', 'leafgreen'],
+  'diamond-pearl':                   ['diamond', 'pearl'],
+  'platinum':                        ['platinum'],
+  'heartgold-soulsilver':            ['heartgold', 'soulsilver'],
+  'black-white':                     ['black', 'white'],
+  'black-2-white-2':                 ['black-2', 'white-2'],
+  'x-y':                             ['x', 'y'],
+  'omega-ruby-alpha-sapphire':       ['omega-ruby', 'alpha-sapphire'],
+  'sun-moon':                        ['sun', 'moon'],
+  'ultra-sun-ultra-moon':            ['ultra-sun', 'ultra-moon'],
+  'lets-go-pikachu-eevee':           ['lets-go-pikachu', 'lets-go-eevee'],
+  'sword-shield':                    ['sword', 'shield'],
+  'brilliant-diamond-shining-pearl': ['brilliant-diamond', 'shining-pearl'],
+  'legends-arceus':                  ['legends-arceus'],
+  'scarlet-violet':                  ['scarlet', 'violet'],
 };
+
+const VERSION_LABELS = {
+  red:                 'Red',
+  blue:                'Blue',
+  yellow:              'Yellow',
+  gold:                'Gold',
+  silver:              'Silver',
+  crystal:             'Crystal',
+  ruby:                'Ruby',
+  sapphire:            'Sapphire',
+  emerald:             'Emerald',
+  firered:             'FireRed',
+  leafgreen:           'LeafGreen',
+  diamond:             'Diamond',
+  pearl:               'Pearl',
+  platinum:            'Platinum',
+  heartgold:           'HeartGold',
+  soulsilver:          'SoulSilver',
+  black:               'Black',
+  white:               'White',
+  'black-2':           'Black 2',
+  'white-2':           'White 2',
+  x:                   'X',
+  y:                   'Y',
+  'omega-ruby':        'OmegaRuby',
+  'alpha-sapphire':    'AlphaSapphire',
+  sun:                 'Sun',
+  moon:                'Moon',
+  'ultra-sun':         'UltraSun',
+  'ultra-moon':        'UltraMoon',
+  'lets-go-pikachu':   "Let's Go Pikachu",
+  'lets-go-eevee':     "Let's Go Eevee",
+  sword:               'Sword',
+  shield:              'Shield',
+  'brilliant-diamond': 'Brilliant Diamond',
+  'shining-pearl':     'Shining Pearl',
+  'legends-arceus':    'Legends: Arceus',
+  scarlet:             'Scarlet',
+  violet:              'Violet',
+};
+
+// Reverse lookup: individual version slug -> its version-group slug (for game-data fetches)
+const VERSION_TO_GROUP = Object.fromEntries(
+  Object.entries(GROUP_VERSIONS).flatMap(([group, versions]) => versions.map(v => [v, group]))
+);
 
 // Maps version-group slug to API generation slug (used for grouping + natCap lookup)
 const GROUP_GENERATION = {
@@ -111,7 +157,8 @@ const dexCache    = {};
 const dexNatToReg = {};
 const dexSizes    = { national: 1025 };
 
-let currentGameGroup    = 'national';
+let currentGameGroup    = 'national'; // version-group slug — drives dex/box-capacity data
+let currentVersion      = 'national'; // individual version slug — drives save-data keys
 let currentDexName      = null;
 let currentNatCap       = 1025;
 let currentBoxCapacity  = 30;
@@ -120,10 +167,6 @@ let currentBox          = 1;
 // ── helpers ───────────────────────────────────────────────────────────────────
 
 function gridCols(cap) { return cap <= 20 ? 5 : 6; }
-
-function formatGroupName(name) {
-  return VERSION_GROUP_LABELS[name] ?? name.split('-').map(w => w[0].toUpperCase() + w.slice(1)).join(' ');
-}
 
 function formatDexName(name) {
   if (!name) return 'National';
@@ -163,8 +206,10 @@ async function loadDex(name) {
   return map;
 }
 
-async function resolveGame(groupName) {
-  if (groupName === 'national') {
+async function resolveGame(versionSlug) {
+  currentVersion = versionSlug;
+
+  if (versionSlug === 'national') {
     currentGameGroup   = 'national';
     currentDexName     = null;
     currentNatCap      = 1025;
@@ -172,6 +217,8 @@ async function resolveGame(groupName) {
     document.getElementById('boxCapSubtitle').textContent = 'Boxes hold 30 Pokémon each';
     return null;
   }
+
+  const groupName = VERSION_TO_GROUP[versionSlug] ?? versionSlug;
 
   const res = await fetch(`https://pokeapi.co/api/v2/version-group/${groupName}`);
   if (!res.ok) throw new Error('Version group not found');
@@ -191,12 +238,12 @@ async function resolveGame(groupName) {
 
 // ── localStorage helpers ──────────────────────────────────────────────────────
 
-// Caught sets are keyed by game group and store national numbers
+// Caught sets are keyed by individual game version and store national numbers
 function getCaught() {
-  return new Set(JSON.parse(localStorage.getItem(`caught_${currentGameGroup}`) ?? '[]'));
+  return new Set(JSON.parse(localStorage.getItem(`caught_${currentVersion}`) ?? '[]'));
 }
 function saveCaught(set) {
-  localStorage.setItem(`caught_${currentGameGroup}`, JSON.stringify([...set]));
+  localStorage.setItem(`caught_${currentVersion}`, JSON.stringify([...set]));
 }
 function toggleCaughtEntry(nationalNum) {
   const s = getCaught();
@@ -205,12 +252,12 @@ function toggleCaughtEntry(nationalNum) {
   return s.has(nationalNum);
 }
 function getBoxName(box) {
-  return (JSON.parse(localStorage.getItem(`boxnames_${currentGameGroup}`) ?? '{}'))[box] ?? '';
+  return (JSON.parse(localStorage.getItem(`boxnames_${currentVersion}`) ?? '{}'))[box] ?? '';
 }
 function saveBoxName(box, name) {
-  const obj = JSON.parse(localStorage.getItem(`boxnames_${currentGameGroup}`) ?? '{}');
+  const obj = JSON.parse(localStorage.getItem(`boxnames_${currentVersion}`) ?? '{}');
   name ? (obj[box] = name) : delete obj[box];
-  localStorage.setItem(`boxnames_${currentGameGroup}`, JSON.stringify(obj));
+  localStorage.setItem(`boxnames_${currentVersion}`, JSON.stringify(obj));
 }
 
 // Remembers the last-used game/mode/layout/search so a reload picks up where we left off
@@ -225,6 +272,104 @@ function saveLastState() {
 function loadLastState() {
   try { return JSON.parse(localStorage.getItem('lastState')); } catch { return null; }
 }
+
+// ── legacy data migration ────────────────────────────────────────────────────
+// Save data from before games were tracked individually lived under a single
+// paired-group key (e.g. "caught_red-blue"). Detect those and let the user
+// assign each one to one of its split versions.
+
+function findLegacyGroups() {
+  const found = new Set();
+  for (let i = 0; i < localStorage.length; i++) {
+    const match = /^(?:caught|boxnames)_(.+)$/.exec(localStorage.key(i));
+    if (match && (GROUP_VERSIONS[match[1]] ?? []).length > 1) found.add(match[1]);
+  }
+  return [...found];
+}
+
+// targetVersions: one or more version slugs to copy this group's legacy data into
+function migrateLegacyGroup(groupSlug, targetVersions) {
+  const caughtKey = `caught_${groupSlug}`;
+  const legacyCaught = localStorage.getItem(caughtKey);
+  if (legacyCaught !== null) {
+    const legacyIds = JSON.parse(legacyCaught);
+    for (const targetVersion of targetVersions) {
+      const merged = new Set(JSON.parse(localStorage.getItem(`caught_${targetVersion}`) ?? '[]'));
+      for (const n of legacyIds) merged.add(n);
+      localStorage.setItem(`caught_${targetVersion}`, JSON.stringify([...merged]));
+    }
+    localStorage.removeItem(caughtKey);
+  }
+
+  const boxKey = `boxnames_${groupSlug}`;
+  const legacyBoxNames = localStorage.getItem(boxKey);
+  if (legacyBoxNames !== null) {
+    const legacyObj = JSON.parse(legacyBoxNames);
+    for (const targetVersion of targetVersions) {
+      const targetObj = JSON.parse(localStorage.getItem(`boxnames_${targetVersion}`) ?? '{}');
+      const merged = { ...legacyObj, ...targetObj }; // target's own names win on conflict
+      localStorage.setItem(`boxnames_${targetVersion}`, JSON.stringify(merged));
+    }
+    localStorage.removeItem(boxKey);
+  }
+}
+
+function checkLegacyMigration() {
+  const groupSlugs = findLegacyGroups();
+  if (groupSlugs.length === 0) return;
+
+  const list = document.getElementById('migrationList');
+  list.innerHTML = '';
+
+  for (const groupSlug of groupSlugs) {
+    const versions = GROUP_VERSIONS[groupSlug];
+
+    const row = document.createElement('div');
+    row.className = 'migration-row';
+    row.dataset.groupSlug = groupSlug;
+
+    const label = document.createElement('span');
+    label.className   = 'migration-label';
+    label.textContent = versions.map(v => VERSION_LABELS[v] ?? v).join(' / ');
+    row.appendChild(label);
+
+    const options = document.createElement('div');
+    options.className = 'migration-options';
+    versions.forEach(v => {
+      const id = `migrate_${groupSlug}_${v}`;
+
+      const checkbox = document.createElement('input');
+      checkbox.type    = 'checkbox';
+      checkbox.id      = id;
+      checkbox.value   = v;
+      checkbox.checked = false;
+
+      const lbl = document.createElement('label');
+      lbl.htmlFor     = id;
+      lbl.textContent = VERSION_LABELS[v] ?? v;
+
+      options.append(checkbox, lbl);
+    });
+    row.appendChild(options);
+
+    list.appendChild(row);
+  }
+
+  document.getElementById('migrationOverlay').classList.add('visible');
+}
+
+document.getElementById('migrationConfirm').addEventListener('click', () => {
+  document.querySelectorAll('#migrationList .migration-row').forEach(row => {
+    const targets = [...row.querySelectorAll('input[type="checkbox"]:checked')].map(cb => cb.value);
+    if (targets.length === 0) return; // nothing picked — leave it, ask again next reload
+    migrateLegacyGroup(row.dataset.groupSlug, targets);
+  });
+  document.getElementById('migrationOverlay').classList.remove('visible');
+});
+
+document.getElementById('migrationDismiss').addEventListener('click', () => {
+  document.getElementById('migrationOverlay').classList.remove('visible');
+});
 
 function regionalCaughtCount(dexName) {
   const caught = getCaught();
@@ -526,7 +671,7 @@ async function lookup() {
           if (getBoxLayout() === 'national') {
             dexPos = null; // not in regional dex — show at national position
           } else {
-            errorEl.textContent = `${data.name} is not in the ${formatGroupName(currentGameGroup)} dex.`;
+            errorEl.textContent = `${data.name} is not in the ${VERSION_LABELS[currentVersion] ?? currentVersion} dex.`;
             return;
           }
         }
@@ -566,16 +711,16 @@ document.getElementById('searchInput').addEventListener('keydown', e => {
 });
 
 document.getElementById('dexSelect').addEventListener('change', async () => {
-  const groupName = document.getElementById('dexSelect').value;
+  const versionSlug = document.getElementById('dexSelect').value;
 
   document.getElementById('searchInput').value = '';
   document.getElementById('card').classList.remove('visible');
   document.getElementById('error').textContent = '';
   document.getElementById('layoutReg').checked = true;
-  document.getElementById('layoutToggle').style.display = groupName === 'national' ? 'none' : '';
+  document.getElementById('layoutToggle').style.display = versionSlug === 'national' ? 'none' : '';
 
   try {
-    await resolveGame(groupName);
+    await resolveGame(versionSlug);
   } catch {
     document.getElementById('error').textContent = 'Failed to load game data.';
   }
@@ -634,11 +779,13 @@ fetch('https://pokeapi.co/api/v2/version-group?limit=50')
       if (groups.length === 0) continue;
       const optgroup = document.createElement('optgroup');
       optgroup.label = GEN_LABELS[gen];
-      for (const name of groups) {
-        const opt = document.createElement('option');
-        opt.value       = name;
-        opt.textContent = formatGroupName(name);
-        optgroup.appendChild(opt);
+      for (const groupName of groups) {
+        for (const versionSlug of GROUP_VERSIONS[groupName] ?? [groupName]) {
+          const opt = document.createElement('option');
+          opt.value       = versionSlug;
+          opt.textContent = VERSION_LABELS[versionSlug] ?? versionSlug;
+          optgroup.appendChild(opt);
+        }
       }
       select.appendChild(optgroup);
     }
@@ -672,3 +819,5 @@ async function restoreLastState() {
     lookup();
   }
 }
+
+checkLegacyMigration();

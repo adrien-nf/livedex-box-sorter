@@ -504,3 +504,63 @@ button.go-btn:active { transform: scale(0.97); }
 }
 .history-entry .h-time { color: #666; font-variant-numeric: tabular-nums; white-space: nowrap; }
 .history-empty { font-size: 0.8rem; color: #666; text-align: center; padding: 0.5rem; }
+
+/* ── legacy data migration ────────────────────────────────────────────────── */
+
+.migration-overlay {
+  position: fixed;
+  inset: 0;
+  background: #0d1526cc;
+  display: none;
+  align-items: center;
+  justify-content: center;
+  padding: 1rem;
+  z-index: 100;
+}
+.migration-overlay.visible { display: flex; }
+
+.migration-modal {
+  background: #16213e;
+  border: 2px solid #3a3a5c;
+  border-radius: 16px;
+  padding: 1.5rem;
+  width: 100%;
+  max-width: 420px;
+  display: flex;
+  flex-direction: column;
+  gap: 0.9rem;
+  animation: pop 0.2s ease;
+}
+.migration-modal h2 { font-size: 1.15rem; color: #f8d030; }
+.migration-modal p  { font-size: 0.85rem; color: #aaa; }
+
+.migration-list { display: flex; flex-direction: column; gap: 0.6rem; max-height: 45vh; overflow-y: auto; }
+
+.migration-row {
+  display: flex;
+  flex-direction: column;
+  gap: 0.45rem;
+  padding: 0.6rem 0.7rem;
+  border: 2px solid #3a3a5c;
+  border-radius: 10px;
+}
+.migration-label { font-size: 0.85rem; font-weight: 600; color: #eee; }
+
+.migration-options { display: flex; flex-wrap: wrap; gap: 0.4rem 1.1rem; }
+.migration-options label {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  font-size: 0.8rem;
+  color: #aaa;
+  cursor: pointer;
+}
+.migration-options input[type="checkbox"] {
+  width: 15px;
+  height: 15px;
+  accent-color: #f8d030;
+  cursor: pointer;
+}
+
+.migration-actions { display: flex; gap: 0.6rem; justify-content: flex-end; }
+.migration-actions .nav-btn { padding: 0.6rem 1.2rem; font-size: 0.85rem; font-weight: 700; }

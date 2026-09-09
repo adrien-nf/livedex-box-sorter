@@ -39,6 +39,18 @@
 
   <div id="card" class="card"></div>
 
+  <div id="migrationOverlay" class="migration-overlay">
+    <div class="migration-modal">
+      <h2>Old save data found</h2>
+      <p>Games are now tracked individually. Choose where each old save goes.</p>
+      <div id="migrationList" class="migration-list"></div>
+      <div class="migration-actions">
+        <button id="migrationConfirm" class="go-btn">Migrate</button>
+        <button id="migrationDismiss" class="nav-btn">Later</button>
+      </div>
+    </div>
+  </div>
+
   <script src="app.js"></script>
 </body>
 </html>
