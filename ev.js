@@ -32,6 +32,8 @@ function loadState() {
     const raw = JSON.parse(localStorage.getItem(STORAGE_KEY) ?? 'null');
     if (raw) {
       pokemons      = raw.pokemons ?? [];
+      // Older saves stored the API slug ("bulbasaur") — upgrade base species to bilingual names
+      pokemons.forEach(p => { if (p.dexNum <= 1025) p.name = bilingualName(p.dexNum) ?? p.name; });
       history       = raw.history ?? [];
       activeCardId  = raw.activeCardId ?? (pokemons[0]?.id ?? null);
     }
@@ -101,14 +103,16 @@ async function addPokemon() {
   if (!raw) { errorEl.textContent = 'Enter a name or number.'; return; }
 
   try {
-    const res = await fetch(`https://pokeapi.co/api/v2/pokemon/${raw.toLowerCase()}`);
+    const query = /^\d+$/.test(raw) ? raw : (findPokemonByName(raw) ?? raw.toLowerCase().replace(/\s+/g, '-'));
+    const res = await fetch(`https://pokeapi.co/api/v2/pokemon/${query}`);
     if (!res.ok) throw new Error();
     const data = await res.json();
 
     const poke = {
       id:         `${Date.now()}_${Math.random().toString(36).slice(2, 8)}`,
       dexNum:     data.id,
-      name:       data.name,
+      // Alternate forms (ids above 10000) keep the API name so the form stays visible
+      name:       data.id <= 1025 ? (bilingualName(data.id) ?? data.name) : data.name,
       sprite:     data.sprites.other['official-artwork'].front_default || data.sprites.front_default,
       item:       'none',   // 'none' | 'macho' | 'power'
       powerStat:  'hp',
@@ -451,5 +455,6 @@ document.addEventListener('keydown', e => {
 
 // ── init ──────────────────────────────────────────────────────────────────────
 
+attachNameSuggestions(document.getElementById('addInput'));
 loadState();
 render();

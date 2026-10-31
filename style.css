@@ -140,6 +140,7 @@ button.go-btn:active { transform: scale(0.97); }
 
 .name-row { display: flex; align-items: center; gap: 0.5rem; }
 .poke-name { font-size: 1.5rem; font-weight: 700; text-transform: capitalize; color: #fff; }
+.poke-name-alt { margin-top: -0.6rem; font-size: 1rem; font-style: italic; color: #aaa; }
 .caught-badge {
   background: #4ade80;
   color: #1a1a2e;

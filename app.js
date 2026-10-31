@@ -176,6 +176,15 @@ function formatDexName(name) {
 function getMode()      { return document.querySelector('input[name="mode"]:checked').value; }
 function getBoxLayout() { return document.querySelector('input[name="layout"]:checked')?.value ?? 'regional'; }
 
+const nameListId = attachNameSuggestions(document.getElementById('searchInput'));
+
+// Placeholder + name autocomplete follow the search mode (no name suggestions when typing a box #)
+function applySearchMode(mode) {
+  const input = document.getElementById('searchInput');
+  input.placeholder = mode === 'box' ? 'Box 1' : 'Name (EN/FR) or #001';
+  mode === 'box' ? input.removeAttribute('list') : input.setAttribute('list', nameListId);
+}
+
 function getMaxBox(dexMap) {
   if (getBoxLayout() === 'national' && dexMap) return Math.ceil(currentNatCap / currentBoxCapacity);
   return Math.ceil((dexSizes[currentDexName ?? 'national'] ?? 1025) / currentBoxCapacity);
@@ -428,8 +437,8 @@ function buildGrid(dexMap, box, activeNatId, dexName, onCellClick) {
     if (pokeId) {
       const img = document.createElement('img');
       img.src     = `https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/${pokeId}.png`;
-      img.alt     = `#${pokeId}`;
-      img.title   = `#${String(pokeId).padStart(4, '0')}`;
+      img.alt     = bilingualName(pokeId) ?? `#${pokeId}`;
+      img.title   = `#${String(pokeId).padStart(4, '0')} ${bilingualName(pokeId) ?? ''}`.trim();
       img.onerror = () => { img.style.opacity = '0'; };
       cell.addEventListener('click', () => onCellClick(dexPos, pokeId));
 
@@ -513,19 +522,25 @@ function showPokemonCard(dexPos, nationalNum, data, dexName, dexMap) {
   const sprite = document.createElement('img');
   sprite.className = 'poke-sprite';
   sprite.src = data.sprites.other['official-artwork'].front_default || data.sprites.front_default;
-  sprite.alt = data.name;
+  sprite.alt = bilingualName(nationalNum) ?? data.name;
   card.appendChild(sprite);
+
+  const names = pokemonNames(nationalNum);
 
   const nameRow = document.createElement('div');
   nameRow.className = 'name-row';
   const nameEl = document.createElement('span');
   nameEl.className   = 'poke-name';
-  nameEl.textContent = data.name;
+  nameEl.textContent = names?.en ?? data.name;
   nameRow.appendChild(nameEl);
   if (isCaught) {
     nameRow.appendChild(Object.assign(document.createElement('span'), { className: 'caught-badge', textContent: '✓' }));
   }
   card.appendChild(nameRow);
+
+  if (names && names.fr !== names.en) {
+    card.appendChild(Object.assign(document.createElement('div'), { className: 'poke-name-alt', textContent: names.fr }));
+  }
 
   const numsEl = document.createElement('div');
   numsEl.className = 'poke-numbers';
@@ -661,17 +676,19 @@ async function lookup() {
     if (!nationalNum) { errorEl.textContent = `#${dexPos} is out of range for this dex.`; return; }
   } else {
     try {
-      const res  = await fetch(`https://pokeapi.co/api/v2/pokemon/${raw.toLowerCase()}`);
+      // English/French names resolve locally; anything else (e.g. "deoxys-attack") goes to the API as-is
+      const query = findPokemonByName(raw) ?? raw.toLowerCase().replace(/\s+/g, '-');
+      const res  = await fetch(`https://pokeapi.co/api/v2/pokemon/${query}`);
       if (!res.ok) throw new Error();
       const data = await res.json();
-      nationalNum = data.id;
+      nationalNum = speciesNumber(data);
       if (dexMap) {
         dexPos = dexMap.indexOf(nationalNum);
         if (dexPos === -1) {
           if (getBoxLayout() === 'national') {
             dexPos = null; // not in regional dex — show at national position
           } else {
-            errorEl.textContent = `${data.name} is not in the ${VERSION_LABELS[currentVersion] ?? currentVersion} dex.`;
+            errorEl.textContent = `${bilingualName(nationalNum) ?? data.name} is not in the ${VERSION_LABELS[currentVersion] ?? currentVersion} dex.`;
             return;
           }
         }
@@ -743,7 +760,7 @@ document.querySelectorAll('input[name="layout"]').forEach(r => {
 
 document.querySelectorAll('input[name="mode"]').forEach(r => {
   r.addEventListener('change', () => {
-    document.getElementById('searchInput').placeholder = r.value === 'box' ? 'Box 1' : 'Name or #001';
+    applySearchMode(r.value);
     document.getElementById('searchInput').value = '';
     document.getElementById('card').classList.remove('visible');
     document.getElementById('error').textContent = '';
@@ -805,7 +822,7 @@ async function restoreLastState() {
   document.getElementById('layoutToggle').style.display = select.value === 'national' ? 'none' : '';
   document.getElementById(state.layout === 'national' ? 'layoutNat' : 'layoutReg').checked = true;
   document.getElementById(state.mode === 'box' ? 'modeBox' : 'modePoke').checked = true;
-  document.getElementById('searchInput').placeholder = state.mode === 'box' ? 'Box 1' : 'Name or #001';
+  applySearchMode(state.mode);
 
   try {
     await resolveGame(select.value);
