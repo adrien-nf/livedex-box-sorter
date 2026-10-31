@@ -1,13 +1,22 @@
 // ── config ────────────────────────────────────────────────────────────────────
 
 const STATS = [
-  { key: 'hp',        label: 'HP',      powerItem: 'Power Weight' },
-  { key: 'attack',    label: 'Attack',  powerItem: 'Power Bracer' },
-  { key: 'defense',   label: 'Defense', powerItem: 'Power Belt' },
-  { key: 'spAttack',  label: 'Sp. Atk', powerItem: 'Power Lens' },
-  { key: 'spDefense', label: 'Sp. Def', powerItem: 'Power Band' },
-  { key: 'speed',     label: 'Speed',   powerItem: 'Power Anklet' },
+  { key: 'hp',        label: { en: 'HP',      fr: 'PV' },        powerItem: { en: 'Power Weight', fr: 'Poids Pouvoir' } },
+  { key: 'attack',    label: { en: 'Attack',  fr: 'Attaque' },   powerItem: { en: 'Power Bracer', fr: 'Bracelet Pouvoir' } },
+  { key: 'defense',   label: { en: 'Defense', fr: 'Défense' },   powerItem: { en: 'Power Belt',   fr: 'Ceinture Pouvoir' } },
+  { key: 'spAttack',  label: { en: 'Sp. Atk', fr: 'Atq. Spé.' }, powerItem: { en: 'Power Lens',   fr: 'Lentille Pouvoir' } },
+  { key: 'spDefense', label: { en: 'Sp. Def', fr: 'Déf. Spé.' }, powerItem: { en: 'Power Band',   fr: 'Bandeau Pouvoir' } },
+  { key: 'speed',     label: { en: 'Speed',   fr: 'Vitesse' },   powerItem: { en: 'Power Anklet', fr: 'Chaîne Pouvoir' } },
 ];
+
+function statLabel(key) {
+  return STATS.find(s => s.key === key)?.label[LANG] ?? key;
+}
+
+// Base species show both names (main language first); alternate forms keep their API name
+function displayName(dexNum, fallback) {
+  return (dexNum <= 1025 && bilingualName(dexNum)) || fallback;
+}
 
 const STAT_CAP  = 252;
 const TOTAL_CAP = 510;
@@ -32,8 +41,6 @@ function loadState() {
     const raw = JSON.parse(localStorage.getItem(STORAGE_KEY) ?? 'null');
     if (raw) {
       pokemons      = raw.pokemons ?? [];
-      // Older saves stored the API slug ("bulbasaur") — upgrade base species to bilingual names
-      pokemons.forEach(p => { if (p.dexNum <= 1025) p.name = bilingualName(p.dexNum) ?? p.name; });
       history       = raw.history ?? [];
       activeCardId  = raw.activeCardId ?? (pokemons[0]?.id ?? null);
     }
@@ -72,6 +79,7 @@ function applyEvGain(poke, baseYield) {
     time:         Date.now(),
     pokemonId:    poke.id,
     pokemonName:  poke.name,
+    dexNum:       poke.dexNum,
     stat:         statKey,
     baseYield,
     gain:         actualGain,
@@ -100,7 +108,7 @@ async function addPokemon() {
   const errorEl = document.getElementById('addError');
   const raw     = input.value.trim();
   errorEl.textContent = '';
-  if (!raw) { errorEl.textContent = 'Enter a name or number.'; return; }
+  if (!raw) { errorEl.textContent = t('errEnterName'); return; }
 
   try {
     const query = /^\d+$/.test(raw) ? raw : (findPokemonByName(raw) ?? raw.toLowerCase().replace(/\s+/g, '-'));
@@ -111,8 +119,7 @@ async function addPokemon() {
     const poke = {
       id:         `${Date.now()}_${Math.random().toString(36).slice(2, 8)}`,
       dexNum:     data.id,
-      // Alternate forms (ids above 10000) keep the API name so the form stays visible
-      name:       data.id <= 1025 ? (bilingualName(data.id) ?? data.name) : data.name,
+      name:       data.name,
       sprite:     data.sprites.other['official-artwork'].front_default || data.sprites.front_default,
       item:       'none',   // 'none' | 'macho' | 'power'
       powerStat:  'hp',
@@ -127,7 +134,7 @@ async function addPokemon() {
     saveState();
     render();
   } catch {
-    errorEl.textContent = `Could not find a Pokémon named "${raw}".`;
+    errorEl.textContent = t('errNoName', { raw });
   }
 }
 
@@ -161,20 +168,18 @@ function renderYieldPanel() {
   if (!poke) {
     const msg = document.createElement('div');
     msg.className = 'yield-target';
-    msg.textContent = 'Add or select a Pokémon to start logging EVs.';
+    msg.textContent = t('evPickPrompt');
     panel.appendChild(msg);
     return;
   }
 
-  const statDef = STATS.find(s => s.key === poke.activeStat);
-
   const target = document.createElement('div');
   target.className = 'yield-target';
   const nameStrong = document.createElement('strong');
-  nameStrong.textContent = poke.name;
+  nameStrong.textContent = displayName(poke.dexNum, poke.name);
   const statStrong = document.createElement('strong');
-  statStrong.textContent = statDef.label;
-  target.append('Logging to ', nameStrong, ' — ', statStrong);
+  statStrong.textContent = statLabel(poke.activeStat);
+  target.append(t('loggingTo'), nameStrong, ' — ', statStrong);
   panel.appendChild(target);
 
   const btnRow = document.createElement('div');
@@ -183,17 +188,17 @@ function renderYieldPanel() {
     const gain = computeGain(poke, y);
     const btn = document.createElement('button');
     btn.className = 'yield-btn';
-    btn.title = `Press ${y}`;
+    btn.title = t('pressKey', { n: y });
 
     const base = document.createElement('span');
     base.className = 'base';
-    base.textContent = `yield ${y}`;
+    base.textContent = t('yieldN', { n: y });
     const gainEl = document.createElement('span');
     gainEl.className = 'gain';
     gainEl.textContent = `+${gain}`;
     const keyHint = document.createElement('span');
     keyHint.className = 'key-hint';
-    keyHint.textContent = `key ${y}`;
+    keyHint.textContent = t('keyN', { n: y });
 
     btn.append(base, gainEl, keyHint);
     btn.addEventListener('click', e => { e.stopPropagation(); applyEvGain(poke, y); });
@@ -209,7 +214,7 @@ function renderRoster() {
   if (pokemons.length === 0) {
     const empty = document.createElement('div');
     empty.className = 'history-empty';
-    empty.textContent = 'No Pokémon yet — add one above to start tracking.';
+    empty.textContent = t('rosterEmpty');
     roster.appendChild(empty);
     return;
   }
@@ -226,11 +231,12 @@ function buildMiniCard(poke) {
 
   const img = document.createElement('img');
   img.src = poke.sprite;
-  img.alt = poke.name;
+  img.alt = displayName(poke.dexNum, poke.name);
 
   const name = document.createElement('span');
   name.className = 'ev-mini-name';
-  name.textContent = poke.name;
+  name.textContent = displayName(poke.dexNum, poke.name);
+  name.title = name.textContent;
 
   const totalEl = document.createElement('span');
   totalEl.className = 'ev-mini-total';
@@ -239,7 +245,7 @@ function buildMiniCard(poke) {
   const removeBtn = document.createElement('button');
   removeBtn.className = 'ev-remove-btn ev-mini-remove';
   removeBtn.textContent = '×';
-  removeBtn.title = 'Remove';
+  removeBtn.title = t('remove');
   removeBtn.addEventListener('click', e => { e.stopPropagation(); removePokemon(poke.id); });
 
   card.append(img, name, totalEl, removeBtn);
@@ -254,7 +260,7 @@ function renderActiveCard() {
   if (!poke) {
     const empty = document.createElement('div');
     empty.className = 'history-empty';
-    empty.textContent = 'Select a Pokémon on the left to see its details.';
+    empty.textContent = t('selectPrompt');
     container.appendChild(empty);
     return;
   }
@@ -272,16 +278,16 @@ function buildCard(poke) {
 
   const img = document.createElement('img');
   img.src = poke.sprite;
-  img.alt = poke.name;
+  img.alt = displayName(poke.dexNum, poke.name);
 
   const nameEl = document.createElement('span');
   nameEl.className = 'ev-card-name';
-  nameEl.textContent = poke.name;
+  nameEl.textContent = displayName(poke.dexNum, poke.name);
 
   const removeBtn = document.createElement('button');
   removeBtn.className = 'ev-remove-btn';
   removeBtn.textContent = '×';
-  removeBtn.title = 'Remove';
+  removeBtn.title = t('remove');
   removeBtn.addEventListener('click', e => { e.stopPropagation(); removePokemon(poke.id); });
 
   header.append(img, nameEl, removeBtn);
@@ -291,7 +297,7 @@ function buildCard(poke) {
   const itemRow = document.createElement('div');
   itemRow.className = 'toggle-row';
   itemRow.addEventListener('click', e => e.stopPropagation());
-  [['none', 'No Item'], ['macho', 'Macho Brace'], ['power', 'Power Item']].forEach(([val, label]) => {
+  [['none', t('noItem')], ['macho', t('machoBrace')], ['power', t('powerItem')]].forEach(([val, label]) => {
     const id = `item_${poke.id}_${val}`;
     const radio = document.createElement('input');
     radio.type = 'radio';
@@ -315,7 +321,7 @@ function buildCard(poke) {
     STATS.forEach(s => {
       const opt = document.createElement('option');
       opt.value = s.key;
-      opt.textContent = `${s.powerItem} (${s.label})`;
+      opt.textContent = `${s.powerItem[LANG]} (${s.label[LANG]})`;
       opt.selected = poke.powerStat === s.key;
       select.appendChild(opt);
     });
@@ -349,7 +355,7 @@ function buildCard(poke) {
 
     const label = document.createElement('span');
     label.className = 'ev-stat-label';
-    label.textContent = s.label;
+    label.textContent = s.label[LANG];
 
     const tier = evTier(poke.evs[s.key]);
 
@@ -384,7 +390,7 @@ function buildCard(poke) {
   totalEl.className = 'ev-total' + (total >= TOTAL_CAP ? ' maxed' : '');
   const totalStrong = document.createElement('strong');
   totalStrong.textContent = total;
-  totalEl.append(totalStrong, ` / ${TOTAL_CAP} total`);
+  totalEl.append(totalStrong, t('evTotal', { cap: TOTAL_CAP }));
   card.appendChild(totalEl);
 
   return card;
@@ -399,7 +405,7 @@ function renderHistory() {
   if (history.length === 0) {
     const empty = document.createElement('div');
     empty.className = 'history-empty';
-    empty.textContent = 'No EVs logged yet.';
+    empty.textContent = t('historyEmpty');
     log.appendChild(empty);
     return;
   }
@@ -410,13 +416,14 @@ function renderHistory() {
 
     const time = document.createElement('span');
     time.className = 'h-time';
-    time.textContent = new Date(h.time).toLocaleTimeString([], { hour12: false });
+    time.textContent = new Date(h.time).toLocaleTimeString(LANG, { hour12: false });
 
-    const statLabel = STATS.find(s => s.key === h.stat)?.label ?? h.stat;
-    const capped = h.gain !== h.requested ? ' (capped)' : '';
+    const capped = h.gain !== h.requested ? t('capped') : '';
 
     const desc = document.createElement('span');
-    desc.textContent = `${h.pokemonName} +${h.gain} ${statLabel}${capped} → ${h.newValue}`;
+    // Entries logged before dexNum was recorded borrow it from the roster when the Pokémon is still there
+    const dexNum = h.dexNum ?? pokemons.find(p => p.id === h.pokemonId)?.dexNum;
+    desc.textContent = `${displayName(dexNum, h.pokemonName)} +${h.gain} ${statLabel(h.stat)}${capped} → ${h.newValue}`;
 
     row.append(time, desc);
     log.appendChild(row);
@@ -427,8 +434,8 @@ function renderHistory() {
 
 function tickClock() {
   const now = new Date();
-  document.getElementById('clock').textContent = now.toLocaleTimeString([], { hour12: false });
-  document.getElementById('clockDate').textContent = now.toLocaleDateString([], {
+  document.getElementById('clock').textContent = now.toLocaleTimeString(LANG, { hour12: false });
+  document.getElementById('clockDate').textContent = now.toLocaleDateString(LANG, {
     weekday: 'long', year: 'numeric', month: 'long', day: 'numeric',
   });
 }
@@ -455,6 +462,14 @@ document.addEventListener('keydown', e => {
 
 // ── init ──────────────────────────────────────────────────────────────────────
 
-attachNameSuggestions(document.getElementById('addInput'));
+let nameListId = attachNameSuggestions(document.getElementById('addInput'));
 loadState();
 render();
+
+document.addEventListener('langchange', () => {
+  document.getElementById('addError').textContent = '';
+  document.getElementById(nameListId).remove();
+  nameListId = attachNameSuggestions(document.getElementById('addInput'));
+  tickClock();
+  render();
+});

@@ -65,6 +65,47 @@ const VERSION_LABELS = {
   violet:              'Violet',
 };
 
+const VERSION_LABELS_FR = {
+  red:                 'Rouge',
+  blue:                'Bleu',
+  yellow:              'Jaune',
+  gold:                'Or',
+  silver:              'Argent',
+  crystal:             'Cristal',
+  ruby:                'Rubis',
+  sapphire:            'Saphir',
+  emerald:             'Émeraude',
+  firered:             'Rouge Feu',
+  leafgreen:           'Vert Feuille',
+  diamond:             'Diamant',
+  pearl:               'Perle',
+  platinum:            'Platine',
+  heartgold:           'Or HeartGold',
+  soulsilver:          'Argent SoulSilver',
+  black:               'Noir',
+  white:               'Blanc',
+  'black-2':           'Noir 2',
+  'white-2':           'Blanc 2',
+  'omega-ruby':        'Rubis Oméga',
+  'alpha-sapphire':    'Saphir Alpha',
+  sun:                 'Soleil',
+  moon:                'Lune',
+  'ultra-sun':         'Ultra-Soleil',
+  'ultra-moon':        'Ultra-Lune',
+  'lets-go-eevee':     "Let's Go Évoli",
+  sword:               'Épée',
+  shield:              'Bouclier',
+  'brilliant-diamond': 'Diamant Étincelant',
+  'shining-pearl':     'Perle Scintillante',
+  'legends-arceus':    'Légendes : Arceus',
+  scarlet:             'Écarlate',
+  violet:              'Violet',
+};
+
+function versionLabel(v) {
+  return (LANG === 'fr' && VERSION_LABELS_FR[v]) || VERSION_LABELS[v] || v;
+}
+
 // Reverse lookup: individual version slug -> its version-group slug (for game-data fetches)
 const VERSION_TO_GROUP = Object.fromEntries(
   Object.entries(GROUP_VERSIONS).flatMap(([group, versions]) => versions.map(v => [v, group]))
@@ -95,17 +136,9 @@ const GROUP_GENERATION = {
   'scarlet-violet':                  'generation-ix',
 };
 
-const GEN_LABELS = {
-  'generation-i':    'Generation I',
-  'generation-ii':   'Generation II',
-  'generation-iii':  'Generation III',
-  'generation-iv':   'Generation IV',
-  'generation-v':    'Generation V',
-  'generation-vi':   'Generation VI',
-  'generation-vii':  'Generation VII',
-  'generation-viii': 'Generation VIII',
-  'generation-ix':   'Generation IX',
-};
+function genLabel(gen) {
+  return t('generation', { n: gen.replace('generation-', '').toUpperCase() });
+}
 
 // Total Pokémon in the national dex as of each generation
 const NATIONAL_CAP = {
@@ -151,6 +184,39 @@ const DEX_LABELS = {
   'blueberry':         'Blueberry Academy — SV',
 };
 
+const DEX_LABELS_FR = {
+  'kanto':             'Kanto — RBJ',
+  'original-johto':    'Johto — OAC',
+  'updated-johto':     'Johto — HGSS',
+  'hoenn':             'Hoenn — RSE',
+  'updated-hoenn':     'Hoenn — ROSA',
+  'original-sinnoh':   'Sinnoh — DP',
+  'extended-sinnoh':   'Sinnoh — Platine',
+  'original-unova':    'Unys — NB',
+  'updated-unova':     'Unys — N2B2',
+  'kalos-central':     'Kalos — XY',
+  'letsgo-kanto':      "Kanto — Let's Go",
+  'original-alola':    'Alola — SL',
+  'updated-alola':     'Alola — USUL',
+  'galar':             'Galar — EB',
+  'isle-of-armor':     'Isolarmure — EB',
+  'crown-tundra':      'Couronneige — EB',
+  'hisui':             'Hisui — LPA',
+  'paldea':            'Paldea — ÉV',
+  'kitakami':          'Septentria — ÉV',
+  'blueberry':         'Académie Myrtille — ÉV',
+};
+
+const TYPE_LABELS_FR = {
+  normal: 'Normal', fire: 'Feu', water: 'Eau', grass: 'Plante', electric: 'Électrik', ice: 'Glace',
+  fighting: 'Combat', poison: 'Poison', ground: 'Sol', flying: 'Vol', psychic: 'Psy', bug: 'Insecte',
+  rock: 'Roche', ghost: 'Spectre', dragon: 'Dragon', dark: 'Ténèbres', steel: 'Acier', fairy: 'Fée',
+};
+
+function typeLabel(type) {
+  return (LANG === 'fr' && TYPE_LABELS_FR[type]) || type;
+}
+
 // ── runtime state ─────────────────────────────────────────────────────────────
 
 const dexCache    = {};
@@ -169,8 +235,8 @@ let currentBox          = 1;
 function gridCols(cap) { return cap <= 20 ? 5 : 6; }
 
 function formatDexName(name) {
-  if (!name) return 'National';
-  return DEX_LABELS[name] ?? name.split('-').map(w => w[0].toUpperCase() + w.slice(1)).join(' ');
+  if (!name) return t('national');
+  return (LANG === 'fr' && DEX_LABELS_FR[name]) || DEX_LABELS[name] || name.split('-').map(w => w[0].toUpperCase() + w.slice(1)).join(' ');
 }
 
 function getMode()      { return document.querySelector('input[name="mode"]:checked').value; }
@@ -181,9 +247,12 @@ const nameListId = attachNameSuggestions(document.getElementById('searchInput'))
 // Placeholder + name autocomplete follow the search mode (no name suggestions when typing a box #)
 function applySearchMode(mode) {
   const input = document.getElementById('searchInput');
-  input.placeholder = mode === 'box' ? 'Box 1' : 'Name (EN/FR) or #001';
+  input.placeholder = t(mode === 'box' ? 'boxPlaceholder' : 'searchPlaceholder');
   mode === 'box' ? input.removeAttribute('list') : input.setAttribute('list', nameListId);
 }
+
+applySearchMode(getMode());
+document.getElementById('boxCapSubtitle').textContent = t('boxCapacity', { n: currentBoxCapacity });
 
 function getMaxBox(dexMap) {
   if (getBoxLayout() === 'national' && dexMap) return Math.ceil(currentNatCap / currentBoxCapacity);
@@ -223,7 +292,7 @@ async function resolveGame(versionSlug) {
     currentDexName     = null;
     currentNatCap      = 1025;
     currentBoxCapacity = 30;
-    document.getElementById('boxCapSubtitle').textContent = 'Boxes hold 30 Pokémon each';
+    document.getElementById('boxCapSubtitle').textContent = t('boxCapacity', { n: 30 });
     return null;
   }
 
@@ -240,7 +309,7 @@ async function resolveGame(versionSlug) {
   currentDexName     = dexName;
   currentNatCap      = NATIONAL_CAP[genName] ?? 1025;
   currentBoxCapacity = BOX_CAPACITY[groupName] ?? 30;
-  document.getElementById('boxCapSubtitle').textContent = `Boxes hold ${currentBoxCapacity} Pokémon each`;
+  document.getElementById('boxCapSubtitle').textContent = t('boxCapacity', { n: currentBoxCapacity });
 
   return dexName ? await loadDex(dexName) : null;
 }
@@ -339,7 +408,7 @@ function checkLegacyMigration() {
 
     const label = document.createElement('span');
     label.className   = 'migration-label';
-    label.textContent = versions.map(v => VERSION_LABELS[v] ?? v).join(' / ');
+    label.textContent = versions.map(versionLabel).join(' / ');
     row.appendChild(label);
 
     const options = document.createElement('div');
@@ -355,7 +424,7 @@ function checkLegacyMigration() {
 
       const lbl = document.createElement('label');
       lbl.htmlFor     = id;
-      lbl.textContent = VERSION_LABELS[v] ?? v;
+      lbl.textContent = versionLabel(v);
 
       options.append(checkbox, lbl);
     });
@@ -444,13 +513,13 @@ function buildGrid(dexMap, box, activeNatId, dexName, onCellClick) {
 
       const btn = document.createElement('button');
       btn.className   = 'caught-btn';
-      btn.title       = isCaught ? 'Unmark' : 'Mark as caught';
+      btn.title       = t(isCaught ? 'unmark' : 'markCaughtShort');
       btn.textContent = '✓';
       btn.addEventListener('click', e => {
         e.stopPropagation();
         const nowCaught = toggleCaughtEntry(pokeId);
         cell.classList.toggle('caught', nowCaught);
-        btn.title = nowCaught ? 'Unmark' : 'Mark as caught';
+        btn.title = t(nowCaught ? 'unmark' : 'markCaughtShort');
         refreshCompletion(dexName);
       });
 
@@ -472,7 +541,7 @@ function refreshCompletion(dexName) {
   const el = document.getElementById('completion-display');
   if (!el) return;
   const { count, total } = caughtStats(dexName);
-  el.innerHTML = `<strong>${count}</strong> / ${total} caught`;
+  el.innerHTML = t('caughtCount', { count, total });
 }
 
 function buildNavRow(box, dexName, dexMap) {
@@ -489,7 +558,7 @@ function buildNavRow(box, dexName, dexMap) {
 
   const label = document.createElement('span');
   label.className   = 'nav-label';
-  label.textContent = `Box ${box}`;
+  label.textContent = t('boxN', { n: box });
 
   const next = document.createElement('button');
   next.className   = 'nav-btn';
@@ -531,33 +600,33 @@ function showPokemonCard(dexPos, nationalNum, data, dexName, dexMap) {
   nameRow.className = 'name-row';
   const nameEl = document.createElement('span');
   nameEl.className   = 'poke-name';
-  nameEl.textContent = names?.en ?? data.name;
+  nameEl.textContent = names?.primary ?? data.name;
   nameRow.appendChild(nameEl);
   if (isCaught) {
     nameRow.appendChild(Object.assign(document.createElement('span'), { className: 'caught-badge', textContent: '✓' }));
   }
   card.appendChild(nameRow);
 
-  if (names && names.fr !== names.en) {
-    card.appendChild(Object.assign(document.createElement('div'), { className: 'poke-name-alt', textContent: names.fr }));
+  if (names?.secondary) {
+    card.appendChild(Object.assign(document.createElement('div'), { className: 'poke-name-alt', textContent: names.secondary }));
   }
 
   const numsEl = document.createElement('div');
   numsEl.className = 'poke-numbers';
   numsEl.innerHTML = (dexMap && dexPos)
     ? `<span><div>${formatDexName(dexName)}</div><strong>#${String(dexPos).padStart(3, '0')}</strong></span>
-       <span><div>National</div><strong>#${String(nationalNum).padStart(4, '0')}</strong></span>`
-    : `<span><div>National</div><strong>#${String(nationalNum).padStart(4, '0')}</strong></span>`;
+       <span><div>${t('national')}</div><strong>#${String(nationalNum).padStart(4, '0')}</strong></span>`
+    : `<span><div>${t('national')}</div><strong>#${String(nationalNum).padStart(4, '0')}</strong></span>`;
   card.appendChild(numsEl);
 
   const typesEl = document.createElement('div');
   typesEl.className = 'types';
-  typesEl.innerHTML = data.types.map(t => `<span class="type-badge ${t.type.name}">${t.type.name}</span>`).join('');
+  typesEl.innerHTML = data.types.map(ty => `<span class="type-badge ${ty.type.name}">${typeLabel(ty.type.name)}</span>`).join('');
   card.appendChild(typesEl);
 
   const caughtBtn = document.createElement('button');
   caughtBtn.className   = 'caught-toggle' + (isCaught ? ' is-caught' : '');
-  caughtBtn.textContent = isCaught ? '✓ Caught' : '+ Mark as caught';
+  caughtBtn.textContent = t(isCaught ? 'caught' : 'markCaught');
   caughtBtn.addEventListener('click', () => {
     toggleCaughtEntry(nationalNum);
     showPokemonCard(dexPos, nationalNum, data, dexName, dexMap);
@@ -567,16 +636,16 @@ function showPokemonCard(dexPos, nationalNum, data, dexName, dexMap) {
   const compEl = document.createElement('div');
   compEl.className = 'completion-text';
   compEl.id        = 'completion-display';
-  compEl.innerHTML = `<strong>${caughtCount}</strong> / ${total} caught`;
+  compEl.innerHTML = t('caughtCount', { count: caughtCount, total });
   card.appendChild(compEl);
 
   card.appendChild(Object.assign(document.createElement('div'), { className: 'divider' }));
 
   const boxInfo = document.createElement('div');
   boxInfo.className = 'box-info';
-  boxInfo.innerHTML = `<div class="box-label">Box</div>
+  boxInfo.innerHTML = `<div class="box-label">${t('box')}</div>
     <div class="box-number">${box}</div>
-    <div class="box-slot">Slot ${slot} of ${currentBoxCapacity}</div>`;
+    <div class="box-slot">${t('slotOf', { slot, cap: currentBoxCapacity })}</div>`;
   card.appendChild(boxInfo);
 
   card.appendChild(buildNavRow(box, dexName, dexMap));
@@ -605,10 +674,10 @@ function showBox(box, dexName, dexMap, { updateInput = true } = {}) {
   nameEl.className       = 'box-name-edit';
   nameEl.contentEditable = 'true';
   nameEl.spellcheck      = false;
-  nameEl.textContent     = savedName || `Box ${box}`;
+  nameEl.textContent     = savedName || t('boxN', { n: box });
   nameEl.addEventListener('blur', () => {
     const val = nameEl.textContent.trim();
-    saveBoxName(box, val === `Box ${box}` ? '' : val);
+    saveBoxName(box, val === t('boxN', { n: box }) ? '' : val);
   });
   nameEl.addEventListener('keydown', e => { if (e.key === 'Enter') { e.preventDefault(); nameEl.blur(); } });
   card.appendChild(nameEl);
@@ -616,14 +685,14 @@ function showBox(box, dexName, dexMap, { updateInput = true } = {}) {
   const rangeEl = document.createElement('div');
   rangeEl.className   = 'box-range';
   rangeEl.textContent = (getBoxLayout() === 'national' && dexMap)
-    ? `National #${start} – #${end}`
+    ? `${t('national')} #${start} – #${end}`
     : `${formatDexName(dexName)} #${start} – #${end}`;
   card.appendChild(rangeEl);
 
   const compEl = document.createElement('div');
   compEl.className = 'completion-text';
   compEl.id        = 'completion-display';
-  compEl.innerHTML = `<strong>${caughtCount}</strong> / ${total} caught`;
+  compEl.innerHTML = t('caughtCount', { count: caughtCount, total });
   card.appendChild(compEl);
 
   card.appendChild(Object.assign(document.createElement('div'), { className: 'divider' }));
@@ -653,17 +722,17 @@ async function lookup() {
   const dexName = currentDexName;
 
   errorEl.textContent = '';
-  if (!raw) { errorEl.textContent = 'Enter a name or number.'; return; }
+  if (!raw) { errorEl.textContent = t('errEnterName'); return; }
 
   let dexMap;
   try { dexMap = dexName ? await loadDex(dexName) : null; }
-  catch { errorEl.textContent = 'Failed to load dex data.'; return; }
+  catch { errorEl.textContent = t('errDexLoad'); return; }
 
   const isNumber = /^\d+$/.test(raw);
 
   if (mode === 'box') {
     const box = parseInt(raw);
-    if (!box || box < 1) { errorEl.textContent = 'Enter a valid box number.'; return; }
+    if (!box || box < 1) { errorEl.textContent = t('errBoxNumber'); return; }
     showBox(box, dexName, dexMap);
     return;
   }
@@ -673,7 +742,7 @@ async function lookup() {
   if (isNumber) {
     dexPos      = parseInt(raw);
     nationalNum = dexMap ? (dexMap[dexPos] ?? null) : dexPos;
-    if (!nationalNum) { errorEl.textContent = `#${dexPos} is out of range for this dex.`; return; }
+    if (!nationalNum) { errorEl.textContent = t('errOutOfRange', { n: dexPos }); return; }
   } else {
     try {
       // English/French names resolve locally; anything else (e.g. "deoxys-attack") goes to the API as-is
@@ -688,7 +757,7 @@ async function lookup() {
           if (getBoxLayout() === 'national') {
             dexPos = null; // not in regional dex — show at national position
           } else {
-            errorEl.textContent = `${bilingualName(nationalNum) ?? data.name} is not in the ${VERSION_LABELS[currentVersion] ?? currentVersion} dex.`;
+            errorEl.textContent = t('errNotInDex', { name: bilingualName(nationalNum) ?? data.name, game: versionLabel(currentVersion) });
             return;
           }
         }
@@ -698,7 +767,7 @@ async function lookup() {
       showPokemonCard(dexPos, nationalNum, data, dexName, dexMap);
       return;
     } catch {
-      errorEl.textContent = `Could not find a Pokémon named "${raw}".`;
+      errorEl.textContent = t('errNoName', { raw });
       return;
     }
   }
@@ -709,7 +778,7 @@ async function lookup() {
     const data = await res.json();
     showPokemonCard(dexPos, nationalNum, data, dexName, dexMap);
   } catch {
-    errorEl.textContent = `Could not find Pokémon #${nationalNum}.`;
+    errorEl.textContent = t('errNoNumber', { n: nationalNum });
   }
 }
 
@@ -739,7 +808,7 @@ document.getElementById('dexSelect').addEventListener('change', async () => {
   try {
     await resolveGame(versionSlug);
   } catch {
-    document.getElementById('error').textContent = 'Failed to load game data.';
+    document.getElementById('error').textContent = t('errGameLoad');
   }
   saveLastState();
 });
@@ -768,6 +837,31 @@ document.querySelectorAll('input[name="mode"]').forEach(r => {
   });
 });
 
+// Main language switched: relabel the game selector and redraw whatever is on screen
+document.addEventListener('langchange', () => {
+  const select = document.getElementById('dexSelect');
+  for (const opt of select.options) {
+    opt.textContent = opt.value === 'national' ? t('nationalDex') : versionLabel(opt.value);
+  }
+  select.querySelectorAll('optgroup').forEach(g => { g.label = genLabel(g.dataset.gen); });
+
+  document.getElementById('boxCapSubtitle').textContent = t('boxCapacity', { n: currentBoxCapacity });
+  document.getElementById('error').textContent = '';
+
+  // Suggestions list is ordered main-language first, so rebuild it
+  document.getElementById(nameListId).remove();
+  attachNameSuggestions(document.getElementById('searchInput'));
+  applySearchMode(getMode());
+
+  if (document.getElementById('card').classList.contains('visible')) {
+    if (getMode() === 'box') {
+      showBox(currentBox, currentDexName, currentDexName ? (dexCache[currentDexName] ?? null) : null, { updateInput: false });
+    } else {
+      lookup();
+    }
+  }
+});
+
 // ── init: populate game selector ──────────────────────────────────────────────
 
 fetch('https://pokeapi.co/api/v2/version-group?limit=50')
@@ -778,7 +872,7 @@ fetch('https://pokeapi.co/api/v2/version-group?limit=50')
 
     const natOpt = document.createElement('option');
     natOpt.value       = 'national';
-    natOpt.textContent = 'National Pokédex';
+    natOpt.textContent = t('nationalDex');
     natOpt.selected    = true;
     select.appendChild(natOpt);
 
@@ -795,12 +889,13 @@ fetch('https://pokeapi.co/api/v2/version-group?limit=50')
     for (const [gen, groups] of byGen) {
       if (groups.length === 0) continue;
       const optgroup = document.createElement('optgroup');
-      optgroup.label = GEN_LABELS[gen];
+      optgroup.label = genLabel(gen);
+      optgroup.dataset.gen = gen;
       for (const groupName of groups) {
         for (const versionSlug of GROUP_VERSIONS[groupName] ?? [groupName]) {
           const opt = document.createElement('option');
           opt.value       = versionSlug;
-          opt.textContent = VERSION_LABELS[versionSlug] ?? versionSlug;
+          opt.textContent = versionLabel(versionSlug);
           optgroup.appendChild(opt);
         }
       }
@@ -827,7 +922,7 @@ async function restoreLastState() {
   try {
     await resolveGame(select.value);
   } catch {
-    document.getElementById('error').textContent = 'Failed to load game data.';
+    document.getElementById('error').textContent = t('errGameLoad');
     return;
   }
 

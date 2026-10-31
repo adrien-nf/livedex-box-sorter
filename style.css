@@ -26,7 +26,7 @@ h1 {
   display: flex;
   gap: 0.5rem;
   width: 100%;
-  max-width: 360px;
+  max-width: 420px;
   margin-bottom: 1.5rem;
   border: 2px solid #3a3a5c;
   border-radius: 8px;
@@ -38,6 +38,7 @@ h1 {
   padding: 0.6rem 1rem;
   font-size: 0.9rem;
   font-weight: 700;
+  white-space: nowrap;
   text-decoration: none;
   background: #16213e;
   color: #888;
@@ -45,6 +46,20 @@ h1 {
 }
 .nav-link:hover { color: #ccc; }
 .nav-link.active { background: #f8d030; color: #1a1a2e; }
+
+.lang-switch { display: flex; border-left: 2px solid #3a3a5c; }
+.lang-switch button {
+  padding: 0 0.7rem;
+  font-size: 0.8rem;
+  font-weight: 700;
+  border: none;
+  background: #16213e;
+  color: #888;
+  cursor: pointer;
+  transition: background 0.15s, color 0.15s;
+}
+.lang-switch button:hover { color: #ccc; }
+.lang-switch button.active { background: #3a3a5c; color: #f8d030; }
 
 select {
   width: 100%;

@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="en" data-i18n-title="evTitle">
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -8,11 +8,11 @@
 </head>
 <body>
   <nav class="navbar">
-    <a href="index.html" class="nav-link">Pokédex</a>
-    <a href="ev-trainer.html" class="nav-link active">EV Trainer</a>
+    <a href="index.html" class="nav-link" data-i18n="navPokedex">Pokédex</a>
+    <a href="ev-trainer.html" class="nav-link active" data-i18n="navEv">EV Trainer</a>
   </nav>
 
-  <h1>EV Training Tracker</h1>
+  <h1 data-i18n="evTitle">EV Training Tracker</h1>
 
   <div class="clock-sticky">
     <div id="clock" class="clock">--:--:--</div>
@@ -22,8 +22,8 @@
   <div class="ev-layout">
     <div class="ev-roster-col">
       <div class="input-row">
-        <input id="addInput" type="text" placeholder="Name (EN/FR) or #001" autofocus />
-        <button class="go-btn" id="addBtn">Add</button>
+        <input id="addInput" type="text" placeholder="Name (EN/FR) or #001" data-i18n-placeholder="searchPlaceholder" autofocus />
+        <button class="go-btn" id="addBtn" data-i18n="add">Add</button>
       </div>
       <div id="addError" class="error"></div>
 
@@ -39,14 +39,15 @@
     <div class="ev-side-col">
       <div class="history-panel">
         <div class="history-header">
-          <span>History</span>
-          <button id="undoBtn" disabled>Undo last</button>
+          <span data-i18n="history">History</span>
+          <button id="undoBtn" disabled data-i18n="undoLast">Undo last</button>
         </div>
         <div id="historyLog" class="history-log"></div>
       </div>
     </div>
   </div>
 
+  <script src="i18n.js"></script>
   <script src="names.js"></script>
   <script src="ev.js"></script>
 </body>

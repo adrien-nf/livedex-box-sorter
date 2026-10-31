@@ -1040,16 +1040,21 @@ const NAME_INDEX = new Map(
   POKEMON_NAMES.flatMap(([en, fr], i) => [[normalizeName(en), i + 1], [normalizeName(fr), i + 1]])
 );
 
+// { primary, secondary } ordered by the main language (LANG from i18n.js); secondary is null when identical
 function pokemonNames(nationalNum) {
   const row = POKEMON_NAMES[nationalNum - 1];
-  return row ? { en: row[0], fr: row[1] } : null;
+  if (!row) return null;
+  const [en, fr]  = row;
+  const primary   = LANG === 'fr' ? fr : en;
+  const secondary = LANG === 'fr' ? en : fr;
+  return { primary, secondary: secondary === primary ? null : secondary };
 }
 
-// "Bulbasaur / Bulbizarre", or just "Pikachu" when both languages agree
+// "Bulbizarre / Bulbasaur" (main language first), or just "Pikachu" when both languages agree
 function bilingualName(nationalNum) {
   const names = pokemonNames(nationalNum);
   if (!names) return null;
-  return names.en === names.fr ? names.en : `${names.en} / ${names.fr}`;
+  return names.secondary ? `${names.primary} / ${names.secondary}` : names.primary;
 }
 
 // Exact match in English or French, else a prefix that points to a single Pokémon
@@ -1073,7 +1078,7 @@ function attachNameSuggestions(input) {
   list.id = `${input.id}_names`;
   const seen = new Set();
   for (const [en, fr] of POKEMON_NAMES) {
-    for (const name of [en, fr]) {
+    for (const name of LANG === 'fr' ? [fr, en] : [en, fr]) {
       if (seen.has(name)) continue;
       seen.add(name);
       list.appendChild(Object.assign(document.createElement('option'), { value: name }));

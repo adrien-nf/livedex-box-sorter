@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="en" data-i18n-title="finderTitle">
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -8,32 +8,32 @@
 </head>
 <body>
   <nav class="navbar">
-    <a href="index.html" class="nav-link active">Pokédex</a>
-    <a href="ev-trainer.html" class="nav-link">EV Trainer</a>
+    <a href="index.html" class="nav-link active" data-i18n="navPokedex">Pokédex</a>
+    <a href="ev-trainer.html" class="nav-link" data-i18n="navEv">EV Trainer</a>
   </nav>
 
-  <h1>Pokémon Box Finder</h1>
+  <h1 data-i18n="finderTitle">Pokémon Box Finder</h1>
   <p class="subtitle" id="boxCapSubtitle">Boxes hold 30 Pokémon each</p>
 
   <select id="dexSelect"><option value="national">National</option></select>
 
   <div class="toggle-row">
     <input type="radio" id="modePoke" name="mode" value="pokemon" checked>
-    <label for="modePoke">Pokémon</label>
+    <label for="modePoke" data-i18n="modePokemon">Pokémon</label>
     <input type="radio" id="modeBox" name="mode" value="box">
-    <label for="modeBox">Box #</label>
+    <label for="modeBox" data-i18n="modeBox">Box #</label>
   </div>
 
   <div class="toggle-row" id="layoutToggle" style="display:none">
     <input type="radio" id="layoutReg" name="layout" value="regional" checked>
-    <label for="layoutReg">Regional boxes</label>
+    <label for="layoutReg" data-i18n="layoutRegional">Regional boxes</label>
     <input type="radio" id="layoutNat" name="layout" value="national">
-    <label for="layoutNat">National boxes</label>
+    <label for="layoutNat" data-i18n="layoutNational">National boxes</label>
   </div>
 
   <div class="input-row">
     <input id="searchInput" type="text" placeholder="Name (EN/FR) or #001" autofocus />
-    <button class="go-btn" onclick="lookup()">Go</button>
+    <button class="go-btn" onclick="lookup()" data-i18n="go">Go</button>
   </div>
   <div id="error" class="error"></div>
 
@@ -41,16 +41,17 @@
 
   <div id="migrationOverlay" class="migration-overlay">
     <div class="migration-modal">
-      <h2>Old save data found</h2>
-      <p>Games are now tracked individually. Choose where each old save goes.</p>
+      <h2 data-i18n="migrationTitle">Old save data found</h2>
+      <p data-i18n="migrationText">Games are now tracked individually. Choose where each old save goes.</p>
       <div id="migrationList" class="migration-list"></div>
       <div class="migration-actions">
-        <button id="migrationConfirm" class="go-btn">Migrate</button>
-        <button id="migrationDismiss" class="nav-btn">Later</button>
+        <button id="migrationConfirm" class="go-btn" data-i18n="migrate">Migrate</button>
+        <button id="migrationDismiss" class="nav-btn" data-i18n="later">Later</button>
       </div>
     </div>
   </div>
 
+  <script src="i18n.js"></script>
   <script src="names.js"></script>
   <script src="app.js"></script>
 </body>
